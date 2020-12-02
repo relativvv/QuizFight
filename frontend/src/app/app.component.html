@@ -6,10 +6,10 @@
     <mat-divider></mat-divider>
     <div class="to-bottom">
       <mat-divider></mat-divider>
-      <button routerLink="" mat-icon-button aria-label="Create a new account">
+      <button routerLink="" (click)="openRegister()" mat-icon-button aria-label="Create a new account">
         <mat-icon>person_add</mat-icon>
       </button><br />
-      <button routerLink="" mat-icon-button aria-label="Login into an existing account">
+      <button routerLink="" (click)="openLogin()" mat-icon-button aria-label="Login into an existing account">
         <mat-icon>fingerprint</mat-icon>
       </button>
     </div>
