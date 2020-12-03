@@ -15,11 +15,26 @@ import { HomeComponent } from './components/home/home.component';
 import { FooterComponent } from './components/misc/footer/footer.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {ReactiveFormsModule} from "@angular/forms";
+import {MatInputModule} from "@angular/material/input";
+import {MatCardModule} from "@angular/material/card";
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatBadgeModule} from "@angular/material/badge";
+import { NoPermissionComponent } from './components/misc/no-permission/no-permission.component';
 
 const routes: Routes = [
   {
-    path: '**',
+    path: '',
     component: HomeComponent
+  },
+  {
+   path: 'register',
+   component: RegisterComponent
+  },
+  {
+    path: 'login',
+    component: LoginComponent
   }
 ];
 
@@ -29,7 +44,8 @@ const routes: Routes = [
     HomeComponent,
     FooterComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    NoPermissionComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -41,7 +57,13 @@ const routes: Routes = [
     MatIconModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatButtonModule
+    MatButtonModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
+    MatCardModule,
+    MatTooltipModule,
+    MatBadgeModule
   ],
   entryComponents: [
     LoginComponent

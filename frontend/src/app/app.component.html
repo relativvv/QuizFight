@@ -1,17 +1,39 @@
 <mat-sidenav-container class="navbar-container">
   <mat-sidenav opened mode="side">
-    <button routerLink="/" mat-icon-button aria-label="Go to the homepage">
+    <button routerLink="/" matTooltip="Home" matTooltipPosition="left" mat-icon-button aria-label="Go to the homepage">
       <mat-icon>home</mat-icon>
     </button><br />
+    <button disabled routerLink="/" matTooltip="Shop (Coming soon)" matTooltipPosition="left" mat-icon-button aria-label="Shop (Coming soon)">
+      <mat-icon>shopping_basket</mat-icon>
+    </button>
     <mat-divider></mat-divider>
     <div class="to-bottom">
       <mat-divider></mat-divider>
-      <button routerLink="" (click)="openRegister()" mat-icon-button aria-label="Create a new account">
-        <mat-icon>person_add</mat-icon>
-      </button><br />
-      <button routerLink="" (click)="openLogin()" mat-icon-button aria-label="Login into an existing account">
-        <mat-icon>fingerprint</mat-icon>
-      </button>
+      <div *ngIf="!this.userService.isLoggedIn()">
+        <button routerLink="register" matToolctip="Register" matTooltipPosition="left" mat-icon-button aria-label="Create a new account">
+          <mat-icon>person_add</mat-icon>
+        </button><br />
+      </div>
+      <div *ngIf="!this.userService.isLoggedIn()">
+        <button routerLink="login" matTooltip="Login" matTooltipPosition="left" mat-icon-button aria-label="Login into an existing account">
+          <mat-icon>fingerprint</mat-icon>
+        </button><br />
+      </div>
+      <div *ngIf="this.userService.isLoggedIn()">
+        <button routerLink="logout" matTooltip="Logout" matTooltipPosition="left" mat-icon-button aria-label="Logout">
+          <mat-icon>exit_to_app</mat-icon>
+        </button><br />
+      </div>
+      <div *ngIf="this.userService.isLoggedIn()">
+        <button routerLink="userdetails" matTooltip="Userdetails" matTooltipPosition="left" mat-icon-button aria-label="Change your userdata">
+          <mat-icon>person</mat-icon>
+        </button><br />
+      </div>
+      <div *ngIf="this.userService.isLoggedIn()">
+        <button style="color: yellow; font-size: 11px;" matTooltip="You have {{this.userService.getMoney()}} Money" matTooltipPosition="left" mat-icon-button aria-label="Your money">
+          {{this.userService.getMoney()}}<mat-icon>attach_money</mat-icon>
+        </button><br />
+      </div>
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
