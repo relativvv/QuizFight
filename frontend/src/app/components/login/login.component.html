@@ -1,28 +1,39 @@
-  <div class="modal-header">
-    <h2 class="modal-title" id="modal-basic-title">Login</h2>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('')">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-      <div class="card-action">
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Username:</span>
-          </div>
-          <input type="text" class="white-text form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-        </div>
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">Password:</span>
-          </div>
-          <input type="password" class="white-text form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
-        </div>
-        <div class="center">
-          <a style='color: #176cb8' routerLink="/register">Don't have an account yet?</a>
-        </div>
+<main *ngIf="!this.userService.isLoggedIn(); else noPermission">
+  <form [formGroup]="this.form">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title><h1><b>Login</b></h1></mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+    <div class="login-container">
+        <mat-form-field appearance="fill">
+          <mat-label>Enter your username</mat-label>
+          <input formControlName="username" matInput required>
+          <mat-error *ngIf="this.form.get('username').invalid">
+            <span *ngIf="this.form.get('username').errors.required">You need to set a username</span>
+            <span *ngIf="this.form.get('username').errors.minlength">You need to set at least 3 characters</span>
+            <span *ngIf="this.form.get('username').errors.maxlength">You can just set 16 characters</span>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Enter your password</mat-label>
+          <input formControlName="password" type="password" matInput required>
+          <mat-error *ngIf="this.form.get('password').invalid">
+            <span *ngIf="this.form.get('password').errors.required">You need to set a password</span>
+            <span *ngIf="this.form.get('password').errors.minlength">You need to set at least 5 characters</span>
+            <span *ngIf="this.form.get('password').errors.maxlength">You can just set 255 characters</span>
+          </mat-error>
+        </mat-form-field>
     </div>
-    <div class="modal-footer">
-      <button mat-raised-button color="primary" (click)="activeModal.close()">Login <mat-icon style="background: none">fingerprint</mat-icon></button>
-    </div>
-  </div>
+      <a href="" routerLink="/register">Don't have an account?</a>
+    </mat-card-content>
+    <mat-card-actions>
+      <button type='submit' (click)="login()" mat-raised-button color="primary" [disabled]="this.form.invalid">Login <mat-icon>fingerprint</mat-icon></button>
+    </mat-card-actions>
+  </mat-card>
+  </form>
+</main>
+
+<ng-template #noPermission>
+  <app-no-permission></app-no-permission>
+</ng-template>
