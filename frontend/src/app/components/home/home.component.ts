@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {UserService} from '../../services/user.service';
+import {Title} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-home',
@@ -9,10 +10,12 @@ import {UserService} from '../../services/user.service';
 export class HomeComponent implements OnInit {
 
   constructor(
-    public readonly userService: UserService
+    public readonly userService: UserService,
+    public readonly titleService: Title
   ) { }
 
   ngOnInit(): void {
+    this.titleService.setTitle('QuizFight - Home');
   }
 
 }

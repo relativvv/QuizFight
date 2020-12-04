@@ -50,16 +50,15 @@ export class RegisterComponent implements OnInit {
         };
 
         this.loading = true;
-        this.userService.registerUser(this.user).pipe(
-          finalize(() => this.loading = false)
-        ).subscribe((result) => {
+        this.userService.registerUser(this.user).subscribe((result) => {
           this.user = result;
           localStorage.setItem('currentUser', JSON.stringify(this.user));
           window.location.href = '/';
           this.userService.currentUserObject.next(this.user);
-        }, (e) => { this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
+        }, (e) => { this.loading = false; this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
                     this.errorMessage = this.errorMessage.slice(0, -1); console.log(e); });
       } else {
+        this.loading = false;
         this.showError = true;
         this.errorMessage = 'Passwords doesn\'t match!';
       }

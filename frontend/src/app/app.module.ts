@@ -26,6 +26,10 @@ import { WaitingComponent } from './components/game/waiting/waiting.component';
 import { QuestionComponent } from './components/game/question/question.component';
 import { ResultComponent } from './components/game/result/result.component';
 import {HttpClientModule} from '@angular/common/http';
+import { UserDetailsComponent } from './components/user-details/user-details.component';
+import { ToastComponent } from './components/misc/toast/toast.component';
+import {MatTableModule} from '@angular/material/table';
+import {MatPaginatorModule} from '@angular/material/paginator';
 
 const routes: Routes = [
   {
@@ -39,6 +43,10 @@ const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent
+  },
+  {
+    path: 'userdetails',
+    component: UserDetailsComponent
   }
 ];
 
@@ -52,7 +60,10 @@ const routes: Routes = [
     NoPermissionComponent,
     WaitingComponent,
     QuestionComponent,
-    ResultComponent
+    ResultComponent,
+    UserDetailsComponent,
+    ToastComponent,
+    ToastComponent,
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -71,7 +82,9 @@ const routes: Routes = [
     MatCardModule,
     MatTooltipModule,
     MatBadgeModule,
-    HttpClientModule
+    HttpClientModule,
+    MatTableModule,
+    MatPaginatorModule
   ],
   entryComponents: [
     LoginComponent

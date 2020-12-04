@@ -1,0 +1,56 @@
+<div *ngIf="this.userService.isLoggedIn() && this.currentUser; else noPermission" class="user-details-parent">
+  <mat-card class="user-details">
+    <div class="user-details-inner-parent">
+      <img [draggable]="false" [src]="this.imageSrc" alt="" style="border: solid 1px black; min-width: 400px; max-height: 400px; min-height: 400px">
+      <mat-card style="height: 400px; margin-top: 20px; margin-right: 20px">
+        <h1><u>User-Details</u></h1>
+        <h2>Username: <span style="display: inline-block; width: 95px"></span> {{ currentUser.username }}</h2>
+        <h2>E-Mail Address: <span style="display: inline-block; width: 50px"></span> {{ currentUser.email }}</h2><br />
+        <h2 *ngIf="!this.loading">Money: <span style="display: inline-block; width: 50px"></span> {{ money }} Coins</h2>
+        <mat-spinner style="margin: 35px;" *ngIf="loading"></mat-spinner>
+      </mat-card>
+    </div>
+    <input style="margin-top: 35px; margin-bottom: 20px;" id="picture" type="file" (change)="picked($event)"><br />
+    <button mat-flat-button color="warn" (click)="submitImage()">Upload</button>
+  </mat-card>
+
+  <mat-card class="pw-change">
+    <h1>Change your password</h1>
+    <form [formGroup]="this.form" class="pw-change-form">
+      <ngb-alert [dismissible]="false" [hidden]="!showError" [type]="'danger'">{{ errorMessage }}</ngb-alert>
+      <ngb-alert [dismissible]="false" [hidden]="!showSuccess" [type]="'success'">Password changed!</ngb-alert>
+      <mat-form-field class="pw-change-full-width">
+        <mat-label>Old password</mat-label>
+        <input formControlName="oldPassword" type="password" matInput placeholder="Type in your OLD password here">
+      </mat-form-field>
+      <mat-error *ngIf="this.form.get('oldPassword').invalid">
+        <span *ngIf="this.form.get('oldPassword').errors.required && this.form.get('oldPassword').dirty">You need to set this!</span>
+        <span *ngIf="this.form.get('oldPassword').errors.minlength">You need to set at least 3 characters</span>
+        <span *ngIf="this.form.get('oldPassword').errors.maxlength">You can just set 10 characters</span>
+      </mat-error>
+      <mat-form-field class="pw-change-full-width">
+        <mat-label>New password</mat-label>
+        <input formControlName="newPassword" type="password" matInput placeholder="Type in your new password here">
+      </mat-form-field>
+      <mat-error *ngIf="this.form.get('newPassword').invalid">
+        <span *ngIf="this.form.get('newPassword').errors.required && this.form.get('newPassword').dirty">You need set this!</span>
+        <span *ngIf="this.form.get('newPassword').errors.minlength">You need to set at least 3 characters</span>
+        <span *ngIf="this.form.get('newPassword').errors.maxlength">You can just set 10 characters</span>
+      </mat-error>
+      <mat-form-field class="pw-change-full-width">
+        <mat-label>Repeat password</mat-label>
+        <input formControlName="newPasswordRepeat" type="password" matInput placeholder="Type in your new password here">
+      </mat-form-field>
+      <mat-error *ngIf="this.form.get('newPasswordRepeat').invalid">
+        <span *ngIf="this.form.get('newPasswordRepeat').errors.required && this.form.get('newPasswordRepeat').dirty">You need to repeat your password</span>
+        <span *ngIf="this.form.get('newPasswordRepeat').errors.minlength">You need to set at least 3 characters</span>
+        <span *ngIf="this.form.get('newPasswordRepeat').errors.maxlength">You can just set 10 characters</span>
+      </mat-error>
+    </form>
+    <button [disabled]="this.form.invalid" mat-flat-button color="warn" (click)="changePw()">Change password</button>
+  </mat-card>
+</div>
+
+<ng-template #noPermission>
+  <app-no-permission></app-no-permission>
+</ng-template>

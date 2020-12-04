@@ -33,11 +33,16 @@ class User
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     private $image;
 
-    public function __construct(string $username, string $email, string $password, string $image = null, int $id = null)
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $money;
+
+    public function __construct(string $username, string $email, string $password, int $money = 0, string $image = null, int $id = null)
     {
         if($id !== null) {
             $this->id = $id;
@@ -46,6 +51,7 @@ class User
         $this->email = $email;
         $this->password = $password;
         $this->image = $image;
+        $this->money = $money;
     }
 
     public function getId(): ?int
@@ -97,6 +103,18 @@ class User
     public function setImage(?string $image): self
     {
         $this->image = $image;
+
+        return $this;
+    }
+
+    public function getMoney(): ?int
+    {
+        return $this->money;
+    }
+
+    public function setMoney(int $money): self
+    {
+        $this->money = $money;
 
         return $this;
     }

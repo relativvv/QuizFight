@@ -3,9 +3,17 @@
     <button routerLink="/" matTooltip="Home" matTooltipPosition="left" mat-icon-button aria-label="Go to the homepage">
       <mat-icon>home</mat-icon>
     </button><br />
-    <button disabled routerLink="/" matTooltip="Shop (Coming soon)" matTooltipPosition="left" mat-icon-button aria-label="Shop (Coming soon)">
+    <button disabled routerLink="/" matTooltip="Shop (Coming soon)" matTooltipPosition="left" mat-icon-button aria-label="Open the Shop">
       <mat-icon>shopping_basket</mat-icon>
-    </button>
+    </button><br />
+    <div *ngIf="this.userService.isLoggedIn()">
+      <button disabled routerLink="inventory" matTooltip="Inventory" matTooltipPosition="left" mat-icon-button aria-label="Open your Inventory">
+        <mat-icon>dashboard</mat-icon>
+      </button><br />
+    </div>
+    <a href="https://bwv-ahaus.de/" matTooltip="BWV" matTooltipPosition="left" mat-icon-button aria-label="Go to the BWV-Homepage">
+      <mat-icon>school</mat-icon>
+    </a><br />
     <mat-divider></mat-divider>
     <div class="to-bottom">
       <mat-divider></mat-divider>
@@ -26,19 +34,19 @@
       </div>
       <div *ngIf="this.userService.isLoggedIn()">
         <button routerLink="userdetails" matTooltip="Userdetails" matTooltipPosition="left" mat-icon-button aria-label="Change your userdata">
-          <mat-icon>person</mat-icon>
+          <img [draggable]="false" [src]="this.imageSrc" alt="" style="border-radius: 100%; border: solid 1px black; max-width: 35px; max-height: 35px; min-height: 35px">
         </button><br />
       </div>
       <div *ngIf="this.userService.isLoggedIn()">
-        <button style="color: yellow; font-size: 11px;" matTooltip="You have {{this.userService.getMoney()}} Money" matTooltipPosition="left" mat-icon-button aria-label="Your money">
-          {{this.userService.getMoney()}}<mat-icon>attach_money</mat-icon>
+        <button style="color: yellow; font-size: 11px;" matTooltip="You have {{money}} Coins" matTooltipPosition="left" mat-icon-button aria-label="Your money">
+          {{money}}<mat-icon>attach_money</mat-icon>
         </button><br />
       </div>
     </div>
   </mat-sidenav>
   <mat-sidenav-content>
     <router-outlet>
-      <mat-spinner *ngIf="loading"></mat-spinner>
+      <mat-spinner style="margin: 50px;" *ngIf="loading"></mat-spinner>
     </router-outlet>
     <app-footer></app-footer>
   </mat-sidenav-content>
