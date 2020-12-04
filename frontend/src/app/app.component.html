@@ -20,7 +20,7 @@
         </button><br />
       </div>
       <div *ngIf="this.userService.isLoggedIn()">
-        <button routerLink="logout" matTooltip="Logout" matTooltipPosition="left" mat-icon-button aria-label="Logout">
+        <button (click)="this.userService.logout()" routerLink="logout" matTooltip="Logout" matTooltipPosition="left" mat-icon-button aria-label="Logout">
           <mat-icon>exit_to_app</mat-icon>
         </button><br />
       </div>
