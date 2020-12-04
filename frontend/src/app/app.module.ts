@@ -22,6 +22,9 @@ import {MatCardModule} from "@angular/material/card";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatBadgeModule} from "@angular/material/badge";
 import { NoPermissionComponent } from './components/misc/no-permission/no-permission.component';
+import { WaitingComponent } from './components/game/waiting/waiting.component';
+import { QuestionComponent } from './components/game/question/question.component';
+import { ResultComponent } from './components/game/result/result.component';
 
 const routes: Routes = [
   {
@@ -45,7 +48,10 @@ const routes: Routes = [
     FooterComponent,
     LoginComponent,
     RegisterComponent,
-    NoPermissionComponent
+    NoPermissionComponent,
+    WaitingComponent,
+    QuestionComponent,
+    ResultComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
