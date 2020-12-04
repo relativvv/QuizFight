@@ -15,16 +15,17 @@ import { HomeComponent } from './components/home/home.component';
 import { FooterComponent } from './components/misc/footer/footer.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
-import {MatFormFieldModule} from "@angular/material/form-field";
-import {ReactiveFormsModule} from "@angular/forms";
-import {MatInputModule} from "@angular/material/input";
-import {MatCardModule} from "@angular/material/card";
-import {MatTooltipModule} from "@angular/material/tooltip";
-import {MatBadgeModule} from "@angular/material/badge";
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {ReactiveFormsModule} from '@angular/forms';
+import {MatInputModule} from '@angular/material/input';
+import {MatCardModule} from '@angular/material/card';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatBadgeModule} from '@angular/material/badge';
 import { NoPermissionComponent } from './components/misc/no-permission/no-permission.component';
 import { WaitingComponent } from './components/game/waiting/waiting.component';
 import { QuestionComponent } from './components/game/question/question.component';
 import { ResultComponent } from './components/game/result/result.component';
+import {HttpClientModule} from '@angular/common/http';
 
 const routes: Routes = [
   {
@@ -69,7 +70,8 @@ const routes: Routes = [
     MatInputModule,
     MatCardModule,
     MatTooltipModule,
-    MatBadgeModule
+    MatBadgeModule,
+    HttpClientModule
   ],
   entryComponents: [
     LoginComponent

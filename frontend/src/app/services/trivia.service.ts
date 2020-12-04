@@ -9,7 +9,7 @@ import {Question} from '../entity/Question';
 
 export class TriviaService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   public getQuestion(amount: number,
                      type: 'multiple' | 'boolean',

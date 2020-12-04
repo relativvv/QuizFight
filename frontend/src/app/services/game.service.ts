@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {TriviaService} from "./trivia.service";
+import {TriviaService} from './trivia.service';
 
 @Injectable({
   providedIn: 'root'

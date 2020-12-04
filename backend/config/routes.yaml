@@ -1,3 +1,14 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+api_get_user_image:
+  path: /user/image
+  controller: App\Controller\UserController::getUserImageByUsername
+  methods: GET
+
+api_register_user:
+  path: /user/register
+  controller: App\Controller\UserController::registerUser
+  methods: POST
+
+api_login_user:
+  path: /user/login
+  controller: App\Controller\UserController::loginUser
+  methods: POST
