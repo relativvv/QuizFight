@@ -73,6 +73,7 @@ export class UserDetailsComponent implements OnInit {
     this.imageSrc = this.selectedFileBase64;
     alert('Profile picture changed!');
     (document.getElementById('picture') as HTMLInputElement).value = null;
+    location.reload();
   }
 
   private createForm(): void {
