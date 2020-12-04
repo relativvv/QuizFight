@@ -1,4 +1,4 @@
-<main *ngIf="!this.userService.isLoggedIn(); else noPermission">
+<main *ngIf="!this.userService.isLoggedIn() || this.loading; else noPermission">
   <form [formGroup]="this.form">
   <mat-card>
     <mat-card-header>
@@ -26,7 +26,6 @@
           </mat-error>
         </mat-form-field>
     </div>
-      <a href="" routerLink="/register">Don't have an account?</a>
     </mat-card-content>
     <mat-card-actions>
       <button type='submit' (click)="login()" mat-raised-button color="primary" [disabled]="this.form.invalid">Login <mat-icon>fingerprint</mat-icon></button>
@@ -35,9 +34,9 @@
   </form>
 </main>
 
-<ng-template *ngIf="!this.loading" #noPermission>
-  <app-no-permission></app-no-permission>
-</ng-template>
+  <ng-template #noPermission>
+    <app-no-permission></app-no-permission>
+  </ng-template>
 
 <div class="register-overlay" *ngIf="loading">
   <mat-spinner color="primary" style="margin-left: 40%; margin-top: 15%;"></mat-spinner>

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserService} from '../../services/user.service';
-import {finalize} from "rxjs/operators";
-import {Title} from "@angular/platform-browser";
+import {finalize} from 'rxjs/operators';
+import {Title} from '@angular/platform-browser';
+import {ToastService} from '../../services/toast.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -14,14 +16,13 @@ export class LoginComponent implements OnInit {
   public loading: boolean;
   public showError: boolean;
   public errorMessage: string;
+  public form: FormGroup;
 
   constructor(
     private readonly formBuilder: FormBuilder,
     public readonly userService: UserService,
-    private readonly titleService: Title
+    private readonly titleService: Title,
   ) { }
-
-  public form: FormGroup;
 
   ngOnInit(): void {
     this.createForm();
@@ -41,11 +42,9 @@ export class LoginComponent implements OnInit {
       const username = this.form.get('username').value;
       const password = this.form.get('password').value;
       this.loading = true;
-      this.userService.loginUser(username, password).pipe(
-        finalize(() => this.loading = false)
-      ).subscribe(() => {
+      this.userService.loginUser(username, password).subscribe(() => {
         window.location.href = '/';
-      }, (e) => { this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
+      }, (e) => { this.loading = false; this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
                   this.errorMessage = this.errorMessage.slice(0, -1); console.log(e); });
     }
   }
