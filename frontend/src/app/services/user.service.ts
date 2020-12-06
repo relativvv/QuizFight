@@ -65,7 +65,7 @@ export class UserService {
   }
 
   public isAdmin(): Observable<boolean> {
-
+    return null;
   }
 
   public logout(): void {
