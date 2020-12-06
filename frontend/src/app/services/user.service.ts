@@ -64,6 +64,10 @@ export class UserService {
     return this.http.post<any>(this.backend + '/user/resetpassword', {url, email});
   }
 
+  public isAdmin(): Observable<boolean> {
+
+  }
+
   public logout(): void {
     localStorage.removeItem('currentUser');
     this.currentUserObject.next(null);

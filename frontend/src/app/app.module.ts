@@ -30,6 +30,9 @@ import { UserDetailsComponent } from './components/user-details/user-details.com
 import { ToastComponent } from './components/misc/toast/toast.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
+import {TranslateHtmlCodesPipe} from '../../pipes/translateHtmlCodes.pipe';
+import { QueueComponent } from './components/game/queue/queue.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 const routes: Routes = [
   {
@@ -47,6 +50,10 @@ const routes: Routes = [
   {
     path: 'userdetails',
     component: UserDetailsComponent
+  },
+  {
+    path: 'queue',
+    component: QueueComponent
   }
 ];
 
@@ -64,6 +71,8 @@ const routes: Routes = [
     UserDetailsComponent,
     ToastComponent,
     ToastComponent,
+    TranslateHtmlCodesPipe,
+    QueueComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -84,10 +93,10 @@ const routes: Routes = [
     MatBadgeModule,
     HttpClientModule,
     MatTableModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatProgressBarModule,
   ],
   entryComponents: [
-    LoginComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

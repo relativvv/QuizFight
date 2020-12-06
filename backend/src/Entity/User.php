@@ -42,7 +42,17 @@ class User
      */
     private $money;
 
-    public function __construct(string $username, string $email, string $password, int $money = 0, string $image = null, int $id = null)
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $queue;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isAdmin;
+
+    public function __construct(string $username, string $email, string $password, int $money = 0, string $image = null, bool $queue = null, int $id = null)
     {
         if($id !== null) {
             $this->id = $id;
@@ -52,6 +62,7 @@ class User
         $this->password = $password;
         $this->image = $image;
         $this->money = $money;
+        $this->queue = $queue;
     }
 
     public function getId(): ?int
@@ -115,6 +126,30 @@ class User
     public function setMoney(int $money): self
     {
         $this->money = $money;
+
+        return $this;
+    }
+
+    public function isInQueue(): bool
+    {
+        return $this->queue;
+    }
+
+    public function setQueue(?bool $queue): self
+    {
+        $this->queue = $queue;
+
+        return $this;
+    }
+
+    public function getIsAdmin(): ?bool
+    {
+        return $this->isAdmin;
+    }
+
+    public function setIsAdmin(?bool $isAdmin): self
+    {
+        $this->isAdmin = $isAdmin;
 
         return $this;
     }

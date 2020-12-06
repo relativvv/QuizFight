@@ -4,4 +4,6 @@ export interface User {
   email: string;
   password: string;
   image?: string | null;
+  queue?: any | null;
+  money: number;
 }
