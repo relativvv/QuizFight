@@ -47,7 +47,8 @@ export class RegisterComponent implements OnInit {
           email: this.form.get('email').value,
           password: this.form.get('password').value,
           image: '../../../assets/default_profile_picture.png',
-          money: 0
+          money: 0,
+          queue: false
         };
 
         this.loading = true;
