@@ -64,8 +64,8 @@ export class UserService {
     return this.http.post<any>(this.backend + '/user/resetpassword', {url, email});
   }
 
-  public isAdmin(): Observable<boolean> {
-    return null;
+  public isAdmin(): boolean {
+    return true;
   }
 
   public logout(): void {
