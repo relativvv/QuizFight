@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {User} from '../entity/User';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class UserService {
 
   currentUserObject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
-  backend = 'http://localhost:8000';
+  backend = 'https://localhost:8000';
   constructor(private http: HttpClient) {
     this.currentUserObject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
     this.currentUser = this.currentUserObject.asObservable();
