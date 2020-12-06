@@ -28,7 +28,7 @@ export class AppComponent implements AfterViewInit {
         finalize(() => this.loading = false)
       ).subscribe((e) => {
         this.imageSrc = e.toString();
-      }, (err) => this.imageSrc = '../assets/default_profile_picture.png');
+      }, () => this.imageSrc = '../assets/default_profile_picture.png');
     }
 
     router.events.subscribe((event: RouterEvent) => {

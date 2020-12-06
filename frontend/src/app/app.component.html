@@ -11,6 +11,11 @@
         <mat-icon>dashboard</mat-icon>
       </button><br />
     </div>
+    <div *ngIf="this.userService.isLoggedIn() && this.userService.isAdmin()">
+      <button routerLink="/admin" class="admin-area" mat-icon-button aria-label="Admin area">
+        <mat-icon>font_download</mat-icon>
+      </button>
+    </div>
     <a href="https://bwv-ahaus.de/" matTooltip="BWV" matTooltipPosition="left" mat-icon-button aria-label="Go to the BWV-Homepage">
       <mat-icon>school</mat-icon>
     </a><br />
@@ -48,6 +53,6 @@
     <router-outlet>
       <mat-spinner style="margin: 50px;" *ngIf="loading"></mat-spinner>
     </router-outlet>
-    <app-footer></app-footer>
+    <app-footer *ngIf="!this.loading"></app-footer>
   </mat-sidenav-content>
 </mat-sidenav-container>

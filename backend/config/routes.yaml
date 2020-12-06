@@ -32,3 +32,28 @@ api_reset_mail:
   path: /user/resetpassword
   controller: App\Controller\UserController::sendResetPasswordMail
   methods: POST
+
+api_is_user_in_queue:
+  path: /user/isinqueue
+  controller: App\Controller\UserController::userIsInQueue
+  methods: GET
+
+api_get_players_in_queue:
+  path: /queue/totalamount
+  controller: App\Controller\UserController::getAmountOfPlayersInQueue
+  methods: GET
+
+api_add_player_to_queue:
+  path: /queue/addtoqueue
+  controller: App\Controller\UserController::addPlayerToQueue
+  methods: POST
+
+api_remove_player_from_queue:
+  path: /queue/removefromqueue
+  controller: App\Controller\UserController::removePlayerFromQueue
+  methods: POST
+
+api_get_queued_players:
+  path: /queue/getqueued
+  controller: App\Controller\UserController::getQueuedPlayers
+  methods: GET

@@ -1,0 +1,25 @@
+<main *ngIf="!this.loading">
+  <button class="go-back" (click)="goBack()" mat-icon-button aria-label="Go Back">
+    <mat-icon>keyboard_backspace</mat-icon>
+  </button>
+  <div *ngIf="this.isInQueue === true; else notInQueue" id="waiting-container">
+    <h1 class="show-image">Searching for opponent..</h1><br /><br />
+    <img id="you" class="show-image" [src]="this.imageSrc" alt="your profile picture">
+    <div id="connecting">
+      <mat-icon class="step-three">fiber_manual_record</mat-icon><br /><br /><br />
+      <mat-icon class="step-two">fiber_manual_record</mat-icon><br />
+      <mat-icon class="step-one">fiber_manual_record</mat-icon>
+    </div>
+  </div>
+
+  <div *ngIf="opponentFound && this.opponent">
+    <h2 style="font-size: 2em;"><span style="margin-right: 15px;">{{this.currentUser.username}}</span> VS <span style="margin-left: 15px;">{{this.opponent.username}}</span></h2><br />
+    <img id="yours" class="animation-right" [src]="this.imageSrc" alt="your profile picture">
+    <img id="opponent" class="animation-left" [src]="this.opponent.image" alt="opponents profile picture">
+  </div>
+</main>
+
+<ng-template #notInQueue>
+  <h1 *ngIf="this.isInQueue === false" style="margin-top: 100px;">You are not in a Queue!</h1>
+  <img style="width: 100%; height: 100%" src="../../../../assets/not-in-queue.gif">
+</ng-template>

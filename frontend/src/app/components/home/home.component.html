@@ -1,7 +1,7 @@
 <main>
-  <h1 style="font-size: 2em; margin-bottom: 50px;">Welcome to <strong>𝓠𝓾𝓲𝔃𝓕𝓲𝓰𝓱𝓽</strong></h1>
+  <h1 style="font-size: 2em; margin-bottom: 50px;">Welcome<span>&nbsp;{{this.user.username}}&nbsp;</span>to <strong>𝓠𝓾𝓲𝔃𝓕𝓲𝓰𝓱𝓽</strong></h1>
   <p class="info-text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
-  <button mat-raised-button class="join-button" [disabled]="!this.userService.isLoggedIn()" color="primary">Play now! <mat-icon>play_arrow</mat-icon></button> <br/>
+  <button mat-raised-button class="join-button" (click)="insertIntoQueue()" routerLink="/queue" [disabled]="!this.userService.isLoggedIn()" color="primary">Play now! <mat-icon>play_arrow</mat-icon></button> <br/>
   <ngb-alert [type]="'danger'" *ngIf="!this.userService.isLoggedIn()" [dismissible]="false">You need to be logged in to play the game!</ngb-alert><br />
   <p class="info-text" style="margin-bottom: 100px;">Lorem ipsum dolor sit amuyam erat, sed diam voluptua. At vero eoset. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore mat, sed diam volua takimata sanctus est Lorem ipsum dolor sit amet.</p>
 </main>

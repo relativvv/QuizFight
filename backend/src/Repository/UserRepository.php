@@ -36,10 +36,37 @@ class UserRepository extends ServiceEntityRepository
         return $this->findOneBy(["email" => $email]);
     }
 
-    public function getImageString(User $user): ?string {
-        return $user->getImage();
+    public function isUserInQueue(string $username): bool {
+        return $this->getUserByUsername($username)->isInQueue();
     }
 
+    public function userExistByUsername(string $username): int {
+        return $this->count(["username" => $username]);
+    }
+
+    public function getAmountInQueue(): int {
+        return $this->count(["queue" => true]);
+    }
+
+    public function addToQueue(ValidatorInterface $validator, User $user)
+    {
+        $user->setQueue(true);
+        try {
+            $this->getEntityManager()->flush();
+        } catch (OptimisticLockException | ORMException $e) {}
+    }
+
+
+    public function removeFromQueue(User $user) {
+        $user->setQueue(false);
+        try {
+            $this->getEntityManager()->flush();
+        } catch (OptimisticLockException | ORMException $e) {}
+    }
+
+    public function getUserInQueue() {
+        return $this->findBy(['queue' => 1]);
+    }
 
 
     /* -------------------------- UPDATE -------------------------- */
