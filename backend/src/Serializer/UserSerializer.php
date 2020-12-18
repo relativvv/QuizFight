@@ -23,14 +23,6 @@ class UserSerializer {
         return new User($username, $email, $password, $money, $image, $queue);
     }
 
-    public function safeDeserializeUser(array $toDeserialize): User {
-        $username = $toDeserialize["username"];
-        $image = $toDeserialize["image"];
-        $queue = $toDeserialize["queue"];
-
-        return new User($username, '', '', '', $image, $queue);
-    }
-
 
 
     public function serializerUser(User $user): array {
@@ -40,21 +32,9 @@ class UserSerializer {
         $finalResponse["password"] = $user->getPassword();
         $finalResponse["email"] = $user->getEmail();
         $finalResponse["image"] = $user->getImage();
+        $finalResponse["isAdmin"] = $user->getIsAdmin();
         $finalResponse["queue"] = $user->isInQueue();
         $finalResponse["money"] = $user->getMoney();
-
-        return $finalResponse;
-    }
-
-    public function safeSerializeUser(User $user): array {
-        $finalResponse = array();
-        $finalResponse["id"] = $user->getId();
-        $finalResponse["username"] = $user->getUsername();
-        $finalResponse["password"] = '';
-        $finalResponse["email"] = '';
-        $finalResponse["image"] = $user->getImage();
-        $finalResponse["queue"] = $user->isInQueue();
-        $finalResponse["money"] = '';
 
         return $finalResponse;
     }

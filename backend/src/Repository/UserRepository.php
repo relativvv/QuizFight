@@ -44,6 +44,10 @@ class UserRepository extends ServiceEntityRepository
         return $this->count(["username" => $username]);
     }
 
+    public function getAllUsers(): array {
+        return $this->findAll();
+    }
+
     public function getAmountInQueue(): int {
         return $this->count(["queue" => true]);
     }
@@ -81,14 +85,34 @@ class UserRepository extends ServiceEntityRepository
         if($this->getUserByUsername($username)) {
             $user = $this->getUserByUsername($username);
             if($user) {
-                $user->setPassword($newPassword);
-                $this->getEntityManager()->flush();
+                try {
+                    $user->setPassword($newPassword);
+                    $this->getEntityManager()->flush();
+                } catch (OptimisticLockException | ORMException $e) {
+                }
                 return $user;
             }
         }
         throw new UserException("User doesn't exist!");
     }
 
+    public function updateUser($username, $email, $money): User
+    {
+        if($this->getUserByUsername($username)) {
+            $user = $this->getUserByUsername($username);
+            if($user) {
+                try {
+                    $user->setEmail($email);
+                    $user->setUsername($username);
+                    $user->setMoney($money);
+                    $this->getEntityManager()->flush();
+                } catch (OptimisticLockException | ORMException $e) {
+                }
+                return $user;
+            }
+        }
+        throw new UserException("User doesn't exist!");
+    }
 
 
     /* -------------------------- REGISTER -------------------------- */

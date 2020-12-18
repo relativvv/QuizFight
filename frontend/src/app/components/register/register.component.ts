@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserService} from '../../services/user.service';
 import {User} from '../../entity/User';
-import {finalize} from 'rxjs/operators';
-import {Title} from "@angular/platform-browser";
+import {Title} from '@angular/platform-browser';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -15,18 +15,17 @@ export class RegisterComponent implements OnInit {
   constructor(
     private readonly formBuilder: FormBuilder,
     public readonly userService: UserService,
-    private readonly titleService: Title
+    private readonly titleService: Title,
+    private readonly toastService: ToastrService
   ) { }
 
   public form: FormGroup;
   public errorMessage: string;
-  public showError: boolean;
   private user: User;
   public loading: boolean;
 
   ngOnInit(): void {
     this.createForm();
-    this.registerChanges();
     this.titleService.setTitle('QuizFight - Register');
   }
 
@@ -57,19 +56,18 @@ export class RegisterComponent implements OnInit {
           localStorage.setItem('currentUser', JSON.stringify(this.user));
           window.location.href = '/';
           this.userService.currentUserObject.next(this.user);
-        }, (e) => { this.loading = false; this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
-                    this.errorMessage = this.errorMessage.slice(0, -1); console.log(e); });
+          this.toastService.success('Successfully registered!');
+        }, (e) => {
+          this.loading = false;
+          this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
+          this.errorMessage = this.errorMessage.slice(0, -1); console.log(e);
+          this.toastService.error(this.errorMessage);
+        });
       } else {
         this.loading = false;
-        this.showError = true;
         this.errorMessage = 'Passwords doesn\'t match!';
+        this.toastService.error(this.errorMessage);
       }
     }
-  }
-
-  public registerChanges(): void {
-    this.form.valueChanges.subscribe(() => {
-      this.showError = false;
-    });
   }
 }

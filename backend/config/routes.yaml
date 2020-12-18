@@ -13,6 +13,16 @@ api_change_password:
   controller: App\Controller\UserController::changePassword
   methods: PUT
 
+api_update_user:
+  path: /user/update
+  controller: App\Controller\UserController::updateUser
+  methods: PUT
+
+api_delete_user:
+  path: /user/delete
+  controller: App\Controller\UserController::deleteUser
+  methods: POST
+
 api_get_user_image:
   path: /user/getUserImage
   controller: App\Controller\UserController::getUserImage
@@ -27,6 +37,16 @@ api_get_user_money:
   path: /user/getmoney
   controller: App\Controller\UserController::getMoney
   methods: GET
+
+api_get_user_is_admin:
+  path: /user/isadmin
+  controller: App\Controller\UserController::isUserAdmin
+  methods: GET
+
+api_get_all_user:
+  path: /user/getalluser
+  controller: App\Controller\UserController::getAllUsers
+  methods: POST
 
 api_reset_mail:
   path: /user/resetpassword

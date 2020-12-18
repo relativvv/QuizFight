@@ -27,12 +27,16 @@ import { QuestionComponent } from './components/game/question/question.component
 import { ResultComponent } from './components/game/result/result.component';
 import {HttpClientModule} from '@angular/common/http';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
-import { ToastComponent } from './components/misc/toast/toast.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {TranslateHtmlCodesPipe} from '../../pipes/translateHtmlCodes.pipe';
 import { QueueComponent } from './components/game/queue/queue.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { AdminComponent } from './components/admin/admin.component';
+import {MatTabsModule} from '@angular/material/tabs';
+import { UserEditModalComponent } from './components/modals/user-edit-modal/user-edit-modal.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {ToastrModule} from 'ngx-toastr';
 
 const routes: Routes = [
   {
@@ -54,6 +58,10 @@ const routes: Routes = [
   {
     path: 'queue',
     component: QueueComponent
+  },
+  {
+    path: 'admin',
+    component: AdminComponent
   }
 ];
 
@@ -69,12 +77,13 @@ const routes: Routes = [
     QuestionComponent,
     ResultComponent,
     UserDetailsComponent,
-    ToastComponent,
-    ToastComponent,
     TranslateHtmlCodesPipe,
-    QueueComponent
+    QueueComponent,
+    AdminComponent,
+    UserEditModalComponent
   ],
   imports: [
+    ToastrModule.forRoot(),
     RouterModule.forRoot(routes),
     BrowserModule,
     AppRoutingModule,
@@ -95,8 +104,11 @@ const routes: Routes = [
     MatTableModule,
     MatPaginatorModule,
     MatProgressBarModule,
+    MatTabsModule,
+    MatSlideToggleModule,
   ],
   entryComponents: [
+    UserEditModalComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -11,7 +11,7 @@
         <mat-icon>dashboard</mat-icon>
       </button><br />
     </div>
-    <div *ngIf="this.userService.isLoggedIn() && this.userService.isAdmin()">
+    <div *ngIf="this.userService.isLoggedIn() && isAdmin">
       <button routerLink="/admin" class="admin-area" mat-icon-button aria-label="Admin area">
         <mat-icon>font_download</mat-icon>
       </button>

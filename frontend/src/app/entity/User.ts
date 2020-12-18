@@ -3,6 +3,7 @@ export interface User {
   username: string;
   email: string;
   password: string;
+  isAdmin: boolean;
   image?: string | null;
   queue?: any | null;
   money: number;

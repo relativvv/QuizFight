@@ -14,7 +14,8 @@ export class AppComponent implements AfterViewInit {
   loading: boolean;
   currentUser: User;
   imageSrc = '../assets/default_profile_picture.png';
-  money = 0;
+  money = -1;
+  isAdmin = false;
 
   constructor(private readonly elementRef: ElementRef,
               private readonly router: Router,
@@ -24,6 +25,7 @@ export class AppComponent implements AfterViewInit {
     if (this.currentUser != null) {
       this.loading = true;
       this.money = this.getMoney(this.currentUser.username);
+      this.isAdmin = this.getIsAdmin();
       this.userService.getUserImage(this.currentUser.username).pipe(
         finalize(() => this.loading = false)
       ).subscribe((e) => {
@@ -40,11 +42,19 @@ export class AppComponent implements AfterViewInit {
     });
   }
 
+  getIsAdmin(): boolean {
+    this.userService.isAdmin(this.currentUser).subscribe((result) => {
+      this.isAdmin = result;
+    });
+    return this.isAdmin;
+  }
+
+
   getMoney(username: string): number {
     this.userService.getMoney(username).subscribe((result) => {
       this.money = result;
     });
-    return -1;
+    return this.money;
   }
 
   ngAfterViewInit(): void {
