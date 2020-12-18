@@ -64,9 +64,37 @@ class UserController extends AbstractController
     }
 
 
-    /** --------------------------- IMAGE ------------------------ **/
+    public function updateUser(Request $request): JsonResponse
+    {
+        $arr = json_decode($request->getContent(), true);
+        $current = $this->repository->getUserByUsername($arr["username"]);
+        if (!$this->isUserExistingByUsername($current->getUsername())) {
+            throw new UserException("User doesn't exist!");
+        }
 
-    /*
+        if($this->validatePlayer($arr["validateUsername"], $arr["validatePassword"])) {
+            $this->repository->updateUser($arr["username"], $arr["email"], $arr["money"]);
+            return new JsonResponse($this->serializer->serializerUser($current));
+        }
+
+        return new JsonResponse("Action not permitted!");
+    }
+
+
+    public function deleteUser(Request $request): JsonResponse
+    {
+        $id = $request->get('id');
+        $arr = json_decode($request->getContent(), true);
+
+        if($this->validatePlayer($arr["validateUsername"], $arr["validatePassword"])) {
+            $this->repository->deleteUser($id);
+            return new JsonResponse('User deleted');
+        }
+        return new JsonResponse("Action not permitted!");
+    }
+
+
+    /** --------------------------- IMAGE ------------------------ *
      * @param Request $request
      * @return JsonResponse
      */
@@ -206,6 +234,42 @@ class UserController extends AbstractController
         throw new UserException("User doesn't exist");
     }
 
+
+
+
+
+
+    public function isUserAdmin(Request $request): JsonResponse
+    {
+        $id = $request->get('id');
+
+        if (!$this->repository->getUserById($id)) {
+            throw new UserException("User doesn't exist!");
+        }
+
+        $user = $this->repository->getUserById($id);
+        return new JsonResponse($user->getIsAdmin());
+    }
+
+    public function getAllUsers(Request $request): JsonResponse
+    {
+        $arr = json_decode($request->getContent(), true);
+        if(!$this->isUserExistingByUsername($arr["username"])) {
+            throw new UserException("User doesn't exist!");
+        }
+
+        if ($this->validatePlayer($arr["username"], $arr["password"])) {
+
+            $list = $this->repository->getAllUsers();
+            $toReturn = array();
+            foreach($list as $user) {
+                array_push($toReturn, $this->serializer->serializerUser($user));
+            }
+
+            return new JsonResponse($toReturn);
+        }
+        throw new UserException("Unknown error");
+    }
 
     /** ------------------------ HELPER ------------------------ **/
 

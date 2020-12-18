@@ -1,0 +1,59 @@
+<main *ngIf="isAdmin; else noPermission">
+  <h1 style="font-size: 4em; margin-bottom: 100px;"><b>Administration</b></h1>
+  <mat-tab-group mat-align-tabs="start">
+    <mat-tab label="Users">
+      <mat-spinner style="margin: 60px;" *ngIf="!users"></mat-spinner>
+      <table *ngIf="this.users != null" class="table table-dark table-striped call-table">
+        <thead>
+          <tr style="text-align: center">
+            <th style="text-align: left">Username</th>
+            <th style="text-align: left">E-Mail Address</th>
+            <th style="text-align: left">Is Admin?</th>
+            <th style="text-align: left">Money</th>
+            <th>Edit</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr style='text-align: center' *ngFor="let user of users.slice(adminStartIndex, adminEndIndex)">
+          <td style="text-align: left">{{ user.username }}</td>
+          <td style="text-align: left">{{ user.email }}</td>
+          <td style="text-align: left">{{ getBooleanAsString(user.isAdmin) }}</td>
+          <td style="text-align: left">{{ user.money }}</td>
+          <td style="width: 4%">
+            <button [disabled]="user.isAdmin" (click)="openEditingModal(user)" mat-fab style="background-color: orange" aria-label="Edit user">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+          <td style="width: 4%">
+            <button [disabled]="user.isAdmin" (click)="deleteUser(user.id)" mat-fab color="warn" aria-label="Delete user">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+        <hr />
+      </table>
+      <mat-paginator
+        #adminPaginator
+        *ngIf="users"
+        [pageSizeOptions]="[5, 10, 20, 30, 40, 50, 75, 100]"
+        [length]="users.length"
+        [pageSize]="20"
+        (page)="pageChange($event)"
+        showFirstLastButtons style="width: 90%; margin: auto; background-color: #1d1d1d; color: white;"></mat-paginator>
+    </mat-tab>
+
+
+
+
+    <mat-tab label="Running Games">
+
+    </mat-tab>
+  </mat-tab-group>
+</main>
+
+
+<ng-template #noPermission>
+  <app-no-permission *ngIf="!this.loading"></app-no-permission>
+</ng-template>

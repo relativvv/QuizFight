@@ -1,0 +1,42 @@
+<div class="modal-header" style="background-color: #1f1f1f; color: white">
+  <h1 class="modal-title">Editing <u>{{ user.username }}</u></h1>
+  <button type="button" style="color: white;" class="close" aria-label="Close" (click)="activeModal.dismiss(null)">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body" style="background-color: #1f1f1f; color: white">
+  <form [formGroup]="this.form">
+      <ngb-alert [dismissible]="false" [hidden]="!showError" [type]="'danger'">{{ errorMessage }}</ngb-alert>
+          <mat-form-field appearance="fill"  style="width: 100%;">
+            <mat-label>Enter the username to change</mat-label>
+            <input formControlName="username" style="min-width: 1000px;" matInput required>
+            <mat-error *ngIf="this.form.get('username').invalid">
+              <span *ngIf="this.form.get('username').errors.required">You need to set a username</span>
+              <span *ngIf="this.form.get('username').errors.minlength">You need to set at least 3 characters</span>
+              <span *ngIf="this.form.get('username').errors.maxlength">You can just set 16 characters</span>
+            </mat-error>
+          </mat-form-field>
+          <br />
+        <mat-form-field appearance="fill"  style="width: 100%;">
+            <mat-label>Enter the E-Mail Address you want to set</mat-label>
+            <input formControlName="email" type="text" matInput required>
+            <mat-error *ngIf="this.form.get('email').invalid">
+              <span *ngIf="this.form.get('email').errors.required">You need to set an E-Mail</span>
+              <span *ngIf="this.form.get('email').errors.email">You need to set a valid E-Mail address</span>
+              <span *ngIf="this.form.get('email').errors.maxlength">You can just set 255 characters</span>
+            </mat-error>
+          </mat-form-field>
+          <br />
+          <mat-form-field appearance="fill"  style="width: 100%;">
+            <mat-label>Enter the money you want to set</mat-label>
+            <input formControlName="money" type="number" matInput required>
+            <mat-error *ngIf="this.form.get('money').invalid">
+              <span *ngIf="this.form.get('money').errors.required">You need to set a money value</span>
+              <span *ngIf="this.form.get('money').errors.min">You need to set at least 0 money</span>
+              <span *ngIf="this.form.get('money').errors.max">You can just set 99999 money</span>
+            </mat-error>
+          </mat-form-field>
+        <br />
+        <button type='submit' style="background-color: limegreen; width: 100%; margin-top: 35px;" (click)="save()" mat-raised-button [disabled]="this.form.invalid">Save <mat-icon>save</mat-icon></button>
+  </form>
+</div>

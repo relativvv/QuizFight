@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserService} from '../../services/user.service';
-import {finalize} from 'rxjs/operators';
 import {Title} from '@angular/platform-browser';
-import {ToastService} from '../../services/toast.service';
-import {Router} from '@angular/router';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +12,6 @@ import {Router} from '@angular/router';
 export class LoginComponent implements OnInit {
 
   public loading: boolean;
-  public showError: boolean;
   public errorMessage: string;
   public form: FormGroup;
 
@@ -22,11 +19,11 @@ export class LoginComponent implements OnInit {
     private readonly formBuilder: FormBuilder,
     public readonly userService: UserService,
     private readonly titleService: Title,
+    private readonly toastService: ToastrService
   ) { }
 
   ngOnInit(): void {
     this.createForm();
-    this.registerChanges();
     this.titleService.setTitle('QuizFight - Login');
   }
 
@@ -44,14 +41,13 @@ export class LoginComponent implements OnInit {
       this.loading = true;
       this.userService.loginUser(username, password).subscribe(() => {
         window.location.href = '/';
-      }, (e) => { this.loading = false; this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
-                  this.errorMessage = this.errorMessage.slice(0, -1); console.log(e); });
+        this.toastService.success('Successfully logged in!');
+      }, (e) => {
+         this.loading = false;
+         this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
+         this.errorMessage = this.errorMessage.slice(0, -1); console.log(e);
+         this.toastService.error(this.errorMessage);
+      });
     }
-  }
-
-  public registerChanges(): void {
-    this.form.valueChanges.subscribe(() => {
-      this.showError = false;
-    });
   }
 }

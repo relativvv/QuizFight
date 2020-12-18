@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {User} from '../entity/User';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 
 @Injectable({
@@ -12,7 +12,7 @@ export class UserService {
 
   currentUserObject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
-  backend = 'https://localhost:8000';
+  backend = 'http://localhost:8000';
   constructor(private http: HttpClient) {
     this.currentUserObject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
     this.currentUser = this.currentUserObject.asObservable();
@@ -32,6 +32,24 @@ export class UserService {
         })
       );
   }
+
+  public updateUser(username: string, email: string, money: number): Observable<User> {
+    return this.http.put<User>(this.backend + '/user/update', {
+      validateUsername: this.currentUserValue.username,
+      validatePassword: this.currentUserValue.password,
+      username,
+      email,
+      money
+    });
+  }
+
+  public deleteUser(id: number): Observable<User> {
+    return this.http.post<User>(this.backend + '/user/delete?id=' + id, {
+      validateUsername: this.currentUserValue.username,
+      validatePassword: this.currentUserValue.password
+    });
+  }
+
 
   /* ---------------------------- IMAGE ------------------------- */
   public getUserImage(username: string): Observable<string> {
@@ -64,8 +82,12 @@ export class UserService {
     return this.http.post<any>(this.backend + '/user/resetpassword', {url, email});
   }
 
-  public isAdmin(): boolean {
-    return true;
+  public getAllUser(user: User): Observable<any> {
+    return this.http.post<any>(this.backend + '/user/getalluser', { username: user.username, password: user.password });
+  }
+
+  public isAdmin(user: User): Observable<boolean> {
+    return this.http.get<boolean>(this.backend + '/user/isadmin?id=' + user.id);
   }
 
   public logout(): void {

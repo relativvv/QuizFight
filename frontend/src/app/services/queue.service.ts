@@ -11,7 +11,7 @@ export class QueueService {
 
   constructor(private http: HttpClient) {}
 
-  backend = 'https://localhost:8000';
+  backend = 'http://localhost:8000';
 
   public getAmountOfPlayersInQueue(): Observable<number> {
     return this.http.get<number>(this.backend + '/queue/totalamount');
