@@ -1,8 +1,18 @@
 main {
   width: 60%;
-  margin: 100px auto auto;
+  margin: 100px auto 30px;
   text-align: center;
   font-size: 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+h1 {
+  text-align: center;
+  width: 100%;
+  line-height: 1.35em;
 }
 
 .join-button {
@@ -36,12 +46,37 @@ main {
 table {
   width: 90%;
   margin: 50px auto auto;
-}
-
-mat-paginator {
-  margin-bottom: 20px;
+  overflow-x: scroll;
 }
 
 *:focus {
   outline: none;
+}
+
+@media(max-width: 750px) {
+  button {
+    position: relative;
+    left: 10px;
+  }
+}
+
+@media(max-width: 860px) {
+  table {
+    tr {
+    display: flex;
+    flex-direction: column;
+  }
+  }
+}
+
+@media(max-width: 550px) {
+  main {
+    width: 90%;
+  }
+}
+
+@media(max-width: 350px) {
+  main {
+    font-size: 1.2em;
+  }
 }

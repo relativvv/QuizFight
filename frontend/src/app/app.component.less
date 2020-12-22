@@ -45,17 +45,21 @@ app-footer {
 }
 
 .loading-overlay {
+  display: grid;
+  justify-content: center;
+  grid-template-areas: "a a a"
+                       "b b b"
+                       "c c c";
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #373737;
-  width: 115%;
-  height: 100%;
-  opacity: 0.925;
-  text-align: center;
+  opacity: 0.75;
   z-index: 9999;
   font-size: 1em;
   mat-spinner {
-    position: relative;
-    margin: auto;
+    grid-area: b;
   }
 }

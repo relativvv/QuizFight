@@ -10,9 +10,10 @@
 }
 
 main {
-  width: 1200px;
+  width: 80%;
   margin: auto;
   height: 800px;
+  overflow-x: hidden;
 }
 
 .question {
@@ -147,15 +148,17 @@ main {
 }
 
 .finished {
-  width: 1200px;
+  width: 95%;
   text-align: center;
   position: relative;
   animation-name: move-to-top;
   animation-duration: 2s;
   margin: 100px auto auto;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  line-height: 1.3em;
 
   .hp-bar {
     width: 180px;
@@ -197,18 +200,22 @@ mat-chip-list {
 }
 
 .waiting-for-opponent {
-    position: fixed;
-    top: 0;
-    background-color: #373737;
-    width: 100%;
-    height: 100%;
-    opacity: 0.75;
-    text-align: center;
-    z-index: 99959;
-    font-size: 1em;
+  display: grid;
+  justify-content: center;
+  grid-template-areas: "a a a"
+                       "b b b"
+                       "c c c";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #373737;
+  opacity: 0.75;
+  z-index: 9999;
+  font-size: 1em;
   h1 {
     font-size: 4em;
-    margin-top: 17%;
     opacity: 100%;
     font-weight: bold;
   }
@@ -225,4 +232,63 @@ mat-chip-list {
     0 0 60px 30px #fff,
     0 0 100px 60px #ffc800,
     0 0 140px 90px #cf9100 !important;
+}
+
+@media(max-width: 920px) {
+  .finished {
+    width: 50%;
+    img {
+      width: 250px;
+      height: 250px;
+    }
+    .hp-bar {
+      width: 250px;
+    }
+    .status {
+      font-size: 3.5em;
+      margin-top: 30px;
+      margin-bottom: 30px;
+    }
+  }
+  .question-answers {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .answer {
+    width: 100%;
+  }
+
+  .header {
+    font-size: 0.8em;
+  }
+}
+
+@media(max-width: 860px) {
+  .username {
+    display: none;
+  }
+
+  .header {
+    .player-info {
+      img {
+        width: 80px;
+        height: 80px;
+        text-align: right;
+      }
+      .hp-bar {
+        width: 80px;
+        text-align: right;
+      }
+    }
+  }
+
+  .go-back {
+    display: none;
+  }
+}
+
+@media(max-width: 445px) {
+  .header {
+    font-size: 0.5em;
+  }
 }
