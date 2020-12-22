@@ -64,15 +64,29 @@ export class UserService {
     });
   }
 
+  public getRank(id: number): Observable<number> {
+    return this.http.get<number>(this.backend + '/user/getrank?id=' + id);
+  }
+
+  public getTopList(): Observable<User[]> {
+    return this.http.get<User[]>(this.backend + '/user/toplist');
+  }
+
 
   /* ---------------------------- IMAGE ------------------------- */
   public getUserImage(username: string): Observable<string> {
     return this.http.get<string>(this.backend + `/user/getUserImage?username=` + username);
   }
 
-  public uploadProfilePicture(image): Observable<any> {
-    return this.http.put(this.backend + '/user/uploadimage',
-      { username: this.currentUserValue.username, password: this.currentUserValue.password, image});
+  public uploadProfilePicture(image): Observable<User> {
+    return this.http.put<User>(this.backend + '/user/uploadimage',
+      { username: this.currentUserValue.username, password: this.currentUserValue.password, image}).pipe(
+      map(user => {
+        localStorage.removeItem('currentUser');
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.currentUserObject.next(user);
+        return user;
+      }));
   }
   /* ---------------------------- IMAGE ------------------------- */
 

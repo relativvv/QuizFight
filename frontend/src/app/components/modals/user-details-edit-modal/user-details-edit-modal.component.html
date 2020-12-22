@@ -1,0 +1,23 @@
+<div class="modal-header" style="background-color: #1f1f1f; color: white">
+  <h1 class="modal-title">Editing <u>{{ user.username }}</u></h1>
+  <button type="button" style="color: white;" class="close" aria-label="Close" (click)="activeModal.dismiss(null)">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body" style="background-color: #1f1f1f; color: white">
+  <form [formGroup]="this.form">
+    <br />
+    <mat-form-field appearance="fill"  style="width: 100%;">
+      <mat-label>Enter the E-Mail Address you want to set</mat-label>
+      <input formControlName="email" type="text" matInput required>
+      <mat-error *ngIf="this.form.get('email').invalid">
+        <span *ngIf="this.form.get('email').errors.required">You need to set an E-Mail</span>
+        <span *ngIf="this.form.get('email').errors.email">You need to set a valid E-Mail address</span>
+        <span *ngIf="this.form.get('email').errors.maxlength">You can just set 255 characters</span>
+      </mat-error>
+    </mat-form-field>
+    <br />
+    <br />
+    <button type='submit' style="background-color: limegreen; width: 100%; margin-top: 35px;" (click)="save()" mat-raised-button [disabled]="this.form.invalid">Save <mat-icon>save</mat-icon></button>
+  </form>
+</div>

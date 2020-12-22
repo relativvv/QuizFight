@@ -76,8 +76,48 @@ class UserController extends AbstractController
             throw new UserException("User doesn't exist!");
         }
 
+        if ($this->isUserExistingByEmail($arr['email'])) {
+            throw new UserException("E-Mail address already registered!");
+        }
+
         $this->repository->updateUser($arr["username"], $arr["email"], $arr["money"], $arr["allTimeCorrect"], $arr["gamesPlayed"], $arr["gamesWon"]);
         return new JsonResponse($this->serializer->serializerUser($current));
+    }
+
+    public function getRank(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
+        $id = $request->get('id');
+        $rank = -1;
+        $user = $this->repository->getUserById($id);
+        $allUser = $this->repository->getAllUsers();
+        $response = [];
+        foreach($allUser as $key => $value) {
+            $response[$value->getUsername()] = $value->getAllTimeCorrect();
+        }
+        arsort($response);
+        $keys = array_keys($response);
+        foreach($keys as $index => $val) {
+            if($val === $user->getUsername()) {
+                $rank = $index+1;
+            }
+        }
+
+        return new JsonResponse($rank);
+    }
+
+    public function getTopList(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
+        $allUser = $this->repository->getAllUsers();
+        $response = [];
+        foreach($allUser as $key => $value) {
+            $response[$value->getId()] = $value->getAllTimeCorrect();
+        }
+        $finalResponse = [];
+        arsort($response);
+        foreach($response as $key => $value) {
+            $finalResponse[] = $this->serializer->safeSerialize($this->repository->getUserById($key));
+        }
+        return new JsonResponse($finalResponse);
     }
 
     public function addMoney(Request $request): JsonResponse {
@@ -140,7 +180,7 @@ class UserController extends AbstractController
             $toCompare = $this->repository->getUserByUsername($arr["username"]);
 
             $this->repository->changeImage($toCompare, $arr["image"]);
-            return new JsonResponse("Image changed");
+            return new JsonResponse($this->serializer->serializerUser($toCompare));
         }
         throw new UserException("Unknown error");
     }

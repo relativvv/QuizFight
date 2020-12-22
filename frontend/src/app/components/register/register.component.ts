@@ -62,10 +62,9 @@ export class RegisterComponent implements OnInit {
           this.userService.currentUserObject.next(this.user);
           this.toastService.success('Successfully registered!');
         }, (e) => {
-          console.log(e);
           this.loading = false;
           this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
-          this.errorMessage = this.errorMessage.slice(0, -1); console.log(e);
+          this.errorMessage = this.errorMessage.slice(0, -1);
           this.toastService.error(this.errorMessage);
         });
       } else {

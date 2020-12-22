@@ -108,7 +108,6 @@ export class QueueComponent implements OnInit, OnDestroy {
           this.playerInQueueAmount = result;
           if (this.playerInQueueAmount >= 2) {
             this.queueService.getQueuedPlayers().subscribe((solution) => {
-              console.log(solution);
               this.queuedPlayers = solution;
               this.startGame();
             });
@@ -155,7 +154,6 @@ export class QueueComponent implements OnInit, OnDestroy {
 
       const played = this.currentUser.gamesPlayed + 1;
 
-      console.log(played);
       this.userService.updateUser(
         this.currentUser.username,
         this.currentUser.email,

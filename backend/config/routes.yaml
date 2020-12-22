@@ -23,6 +23,16 @@ api_delete_user:
   controller: App\Controller\UserController::deleteUser
   methods: POST
 
+api_get_user_rank:
+  path: /user/getrank
+  controller: App\Controller\UserController::getRank
+  methods: GET
+
+api_get_user_top_list:
+  path: /user/toplist
+  controller: App\Controller\UserController::getTopList
+  methods: GET
+
 api_get_user_image:
   path: /user/getUserImage
   controller: App\Controller\UserController::getUserImage

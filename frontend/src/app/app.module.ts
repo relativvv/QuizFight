@@ -41,6 +41,8 @@ import {BooleanAsString} from '../../pipes/booleanAsString';
 import {MatStepperModule} from '@angular/material/stepper';
 import {A11yModule} from '@angular/cdk/a11y';
 import {MatChipsModule} from '@angular/material/chips';
+import { UserDetailsEditModalComponent } from './components/modals/user-details-edit-modal/user-details-edit-modal.component';
+import { ChangePasswordComponent } from './components/modals/change-password/change-password.component';
 
 const routes: Routes = [
   {
@@ -90,6 +92,8 @@ const routes: Routes = [
     AdminComponent,
     UserEditModalComponent,
     IngameComponent,
+    UserDetailsEditModalComponent,
+    ChangePasswordComponent,
   ],
   imports: [
     ToastrModule.forRoot(),
@@ -120,7 +124,9 @@ const routes: Routes = [
     MatChipsModule,
   ],
   entryComponents: [
-    UserEditModalComponent
+    UserEditModalComponent,
+    UserDetailsEditModalComponent,
+    ChangePasswordComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

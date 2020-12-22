@@ -50,6 +50,9 @@ class UserSerializer {
         $finalResponse["id"] = $user->getId();
         $finalResponse["username"] = $user->getUsername();
         $finalResponse["image"] = $user->getImage();
+        $finalResponse["allTimeCorrect"] = $user->getAllTimeCorrect();
+        $finalResponse["gamesWon"] = $user->getGamesWon();
+        $finalResponse["gamesPlayed"] = $user->getPlayedGames();
         return $finalResponse;
     }
 }

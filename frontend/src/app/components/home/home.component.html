@@ -9,5 +9,39 @@
   <p class="info-text" style="margin-bottom: 100px;">
     <span style="font-size: 2em"><u>Fun-Fact</u></span><br /><br />
     {{fact}}
-  </p>
+  </p><br />
+  <table *ngIf="this.top != null" class="table table-dark table-striped call-table">
+    <thead>
+    <tr style="text-align: center">
+      <th style="text-align: left">Rank</th>
+      <th style="text-align: left">Username</th>
+      <th style="text-align: left">Correct answers (all time)</th>
+      <th style="text-align: left">Games played</th>
+      <th style="text-align: left">Games won</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr style='text-align: center' *ngFor="let user of top.slice(topStartIndex, topEndIndex)">
+      <td style="text-align: left"><mat-chip-list>
+        <mat-chip
+          [class.first]="top.indexOf(user)+1 === 1"
+          [class.second]="top.indexOf(user)+1 === 2"
+          [class.third]="top.indexOf(user)+1 === 3"
+          [class.other-rank]="top.indexOf(user)+1 > 3">#{{ top.indexOf(user)+1 }}
+        </mat-chip></mat-chip-list></td>
+      <td style="text-align: left">{{ user.username }}</td>
+      <td style="text-align: left">{{ user.allTimeCorrect }}</td>
+      <td style="text-align: left">{{ user.gamesPlayed }}</td>
+      <td style="text-align: left">{{ user.gamesWon }}</td>
+    </tr>
+    </tbody>
+  </table>
+  <mat-paginator
+    #topPaginator
+    *ngIf="top"
+    [pageSizeOptions]="[5, 10, 20, 30, 40, 50, 75, 100]"
+    [length]="top.length"
+    [pageSize]="20"
+    (page)="pageChange($event)"
+    showFirstLastButtons style="width: 90%; margin: auto; background-color: #1d1d1d; color: white;"></mat-paginator>
 </main>
