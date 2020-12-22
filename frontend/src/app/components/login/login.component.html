@@ -1,5 +1,5 @@
-<main *ngIf="!this.userService.isLoggedIn() || this.loading; else noPermission">
-  <form [formGroup]="this.form">
+<main *ngIf="!userService.isLoggedIn() || loading; else noPermission">
+  <form [formGroup]="form">
   <mat-card>
     <mat-card-header>
       <mat-card-title><h1><b>Login</b></h1></mat-card-title>
@@ -9,25 +9,25 @@
         <mat-form-field appearance="fill">
           <mat-label>Enter your username</mat-label>
           <input formControlName="username" matInput required>
-          <mat-error *ngIf="this.form.get('username').invalid">
-            <span *ngIf="this.form.get('username').errors.required">You need to set a username</span>
-            <span *ngIf="this.form.get('username').errors.minlength">You need to set at least 3 characters</span>
-            <span *ngIf="this.form.get('username').errors.maxlength">You can just set 16 characters</span>
+          <mat-error *ngIf="form.get('username').invalid">
+            <span *ngIf="form.get('username').errors.required">You need to set a username</span>
+            <span *ngIf="form.get('username').errors.minlength">You need to set at least 3 characters</span>
+            <span *ngIf="form.get('username').errors.maxlength">You can just set 16 characters</span>
           </mat-error>
         </mat-form-field>
         <mat-form-field appearance="fill">
           <mat-label>Enter your password</mat-label>
           <input formControlName="password" type="password" matInput required>
-          <mat-error *ngIf="this.form.get('password').invalid">
-            <span *ngIf="this.form.get('password').errors.required">You need to set a password</span>
-            <span *ngIf="this.form.get('password').errors.minlength">You need to set at least 5 characters</span>
-            <span *ngIf="this.form.get('password').errors.maxlength">You can just set 255 characters</span>
+          <mat-error *ngIf="form.get('password').invalid">
+            <span *ngIf="form.get('password').errors.required">You need to set a password</span>
+            <span *ngIf="form.get('password').errors.minlength">You need to set at least 5 characters</span>
+            <span *ngIf="form.get('password').errors.maxlength">You can just set 255 characters</span>
           </mat-error>
         </mat-form-field>
     </div>
     </mat-card-content>
     <mat-card-actions>
-      <button type='submit' (click)="login()" mat-raised-button color="primary" [disabled]="this.form.invalid">Login <mat-icon>fingerprint</mat-icon></button>
+      <button type='submit' (click)="login()" mat-raised-button color="primary" [disabled]="form.invalid">Login <mat-icon>fingerprint</mat-icon></button>
     </mat-card-actions>
   </mat-card>
   </form>
@@ -37,6 +37,6 @@
     <app-no-permission></app-no-permission>
   </ng-template>
 
-<div class="register-overlay" *ngIf="loading">
+<div class="login-overlay" *ngIf="loading">
   <mat-spinner color="primary" style="margin-left: 40%; margin-top: 15%;"></mat-spinner>
 </div>

@@ -42,11 +42,15 @@ export class RegisterComponent implements OnInit {
     if (this.form.valid) {
       if (this.form.get('password').value === this.form.get('confirmPassword').value) {
         this.user = {
+          isAdmin: false,
           username: this.form.get('username').value,
           email: this.form.get('email').value,
           password: this.form.get('password').value,
           image: '../../../assets/default_profile_picture.png',
           money: 0,
+          allTimeCorrect: 0,
+          gamesPlayed: 0,
+          gamesWon: 0,
           queue: false
         };
 
@@ -58,6 +62,7 @@ export class RegisterComponent implements OnInit {
           this.userService.currentUserObject.next(this.user);
           this.toastService.success('Successfully registered!');
         }, (e) => {
+          console.log(e);
           this.loading = false;
           this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
           this.errorMessage = this.errorMessage.slice(0, -1); console.log(e);

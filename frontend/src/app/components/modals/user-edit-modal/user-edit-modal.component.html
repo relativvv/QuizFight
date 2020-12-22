@@ -36,7 +36,37 @@
               <span *ngIf="this.form.get('money').errors.max">You can just set 99999 money</span>
             </mat-error>
           </mat-form-field>
-        <br />
+          <br />
+          <mat-form-field appearance="fill"  style="width: 100%;">
+            <mat-label>Amount of correct answers of all time</mat-label>
+            <input formControlName="allTimeCorrect" type="number" matInput required>
+            <mat-error *ngIf="this.form.get('allTimeCorrect').invalid">
+              <span *ngIf="this.form.get('allTimeCorrect').errors.required">You need to set a value here</span>
+              <span *ngIf="this.form.get('allTimeCorrect').errors.min">You need to set at least 0 answers</span>
+              <span *ngIf="this.form.get('allTimeCorrect').errors.max">You can just set 99999 answers</span>
+            </mat-error>
+          </mat-form-field>
+          <br />
+          <mat-form-field appearance="fill"  style="width: 100%;">
+            <mat-label>How many games did this player played</mat-label>
+            <input formControlName="gamesPlayed" type="number" matInput required>
+            <mat-error *ngIf="this.form.get('gamesPlayed').invalid">
+              <span *ngIf="this.form.get('gamesPlayed').errors.required">You need to set a value here</span>
+              <span *ngIf="this.form.get('gamesPlayed').errors.min">You need to set at least 0 games played</span>
+              <span *ngIf="this.form.get('gamesPlayed').errors.max">You can just set 99999 games played</span>
+            </mat-error>
+          </mat-form-field>
+          <br />
+          <mat-form-field appearance="fill"  style="width: 100%;">
+            <mat-label>How many games did this player won</mat-label>
+            <input formControlName="gamesWon" type="number" matInput required>
+            <mat-error *ngIf="this.form.get('gamesWon').invalid">
+              <span *ngIf="this.form.get('gamesWon').errors.required">You need to set a value here</span>
+              <span *ngIf="this.form.get('gamesWon').errors.min">You need to set at least 0 games won</span>
+              <span *ngIf="this.form.get('gamesWon').errors.max">You can just set 99999 games won</span>
+            </mat-error>
+          </mat-form-field>
+          <br />
         <button type='submit' style="background-color: limegreen; width: 100%; margin-top: 35px;" (click)="save()" mat-raised-button [disabled]="this.form.invalid">Save <mat-icon>save</mat-icon></button>
   </form>
 </div>

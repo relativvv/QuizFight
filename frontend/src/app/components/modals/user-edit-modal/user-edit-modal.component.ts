@@ -32,7 +32,10 @@ export class UserEditModalComponent implements OnInit {
     this.form = this.formBuilder.group({
       username: [this.user.username, [Validators.required, Validators.minLength(3), Validators.maxLength(16)]],
       email: [this.user.email, [Validators.required, Validators.email, Validators.maxLength(255)]],
-      money: [this.user.money, [Validators.required, Validators.min(0), Validators.max(99999)]]
+      money: [this.user.money, [Validators.required, Validators.min(0), Validators.max(99999)]],
+      allTimeCorrect: [this.user.allTimeCorrect, [Validators.required, Validators.min(0), Validators.max(99999)]],
+      gamesPlayed: [this.user.gamesPlayed, [Validators.required, Validators.min(0), Validators.max(99999)]],
+      gamesWon: [this.user.gamesWon, [Validators.required, Validators.min(0), Validators.max(99999)]]
     });
   }
 
@@ -40,7 +43,10 @@ export class UserEditModalComponent implements OnInit {
     this.userService.updateUser(
       this.form.get('username').value,
       this.form.get('email').value,
-      this.form.get('money').value).subscribe(() => {
+      this.form.get('money').value,
+      this.form.get('allTimeCorrect').value,
+      this.form.get('gamesPlayed').value,
+      this.form.get('gamesWon').value).subscribe(() => {
         this.toastService.success('Successfully saved!');
         this.activeModal.close('ok');
     }, () => { this.toastService.error('An error ocurred!'); });

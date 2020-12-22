@@ -96,7 +96,7 @@ class UserRepository extends ServiceEntityRepository
         throw new UserException("User doesn't exist!");
     }
 
-    public function updateUser($username, $email, $money): User
+    public function updateUser($username, $email, $money, $allTimeCorrect, $playedGames, $won): User
     {
         if($this->getUserByUsername($username)) {
             $user = $this->getUserByUsername($username);
@@ -105,6 +105,25 @@ class UserRepository extends ServiceEntityRepository
                     $user->setEmail($email);
                     $user->setUsername($username);
                     $user->setMoney($money);
+                    $user->setPlayedGames($playedGames);
+                    $user->setGamesWon($won);
+                    $user->setAllTimeCorrect($allTimeCorrect);
+                    $this->getEntityManager()->flush();
+                } catch (OptimisticLockException | ORMException $e) {
+                }
+                return $user;
+            }
+        }
+        throw new UserException("User doesn't exist!");
+    }
+
+    public function addMoney($username, $money): User
+    {
+        if($this->getUserByUsername($username)) {
+            $user = $this->getUserByUsername($username);
+            if($user) {
+                try {
+                    $user->addMoney($money);
                     $this->getEntityManager()->flush();
                 } catch (OptimisticLockException | ORMException $e) {
                 }

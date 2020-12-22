@@ -1,9 +1,0 @@
-<main *ngIf="this.userService.isLoggedIn()">
-  <mat-card class="question">{{ this.questionString | translateHtmlCodes }}<span class="money" *ngIf="this.money"> {{this.money}} <mat-icon>attach_money</mat-icon></span></mat-card>
-  <div *ngIf="!this.loading && this.answers" class="question-answers">
-    <button (click)="lockAnswer('one')" id="answerOne" class="answer" mat-raised-button color="accent">{{ this.answerOne | translateHtmlCodes }}</button>
-    <button (click)="lockAnswer('two')" id="answerTwo" class="answer" mat-raised-button color="accent">{{ this.answerTwo | translateHtmlCodes }}</button>
-    <button (click)="lockAnswer('three')" id="answerThree" class="answer" mat-raised-button color="accent">{{ this.answerThree | translateHtmlCodes }}</button>
-    <button (click)="lockAnswer('four')" id="answerFour" class="answer" mat-raised-button color="accent">{{ this.answerFour | translateHtmlCodes }}</button>
-  </div>
-</main>

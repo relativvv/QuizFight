@@ -23,7 +23,6 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatBadgeModule} from '@angular/material/badge';
 import { NoPermissionComponent } from './components/misc/no-permission/no-permission.component';
 import { WaitingComponent } from './components/game/waiting/waiting.component';
-import { QuestionComponent } from './components/game/question/question.component';
 import { ResultComponent } from './components/game/result/result.component';
 import {HttpClientModule} from '@angular/common/http';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
@@ -37,6 +36,11 @@ import {MatTabsModule} from '@angular/material/tabs';
 import { UserEditModalComponent } from './components/modals/user-edit-modal/user-edit-modal.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {ToastrModule} from 'ngx-toastr';
+import { IngameComponent } from './components/game/ingame/ingame.component';
+import {BooleanAsString} from '../../pipes/booleanAsString';
+import {MatStepperModule} from '@angular/material/stepper';
+import {A11yModule} from '@angular/cdk/a11y';
+import {MatChipsModule} from '@angular/material/chips';
 
 const routes: Routes = [
   {
@@ -62,6 +66,10 @@ const routes: Routes = [
   {
     path: 'admin',
     component: AdminComponent
+  },
+  {
+    path: 'game',
+    component: IngameComponent
   }
 ];
 
@@ -74,13 +82,14 @@ const routes: Routes = [
     RegisterComponent,
     NoPermissionComponent,
     WaitingComponent,
-    QuestionComponent,
     ResultComponent,
     UserDetailsComponent,
     TranslateHtmlCodesPipe,
+    BooleanAsString,
     QueueComponent,
     AdminComponent,
-    UserEditModalComponent
+    UserEditModalComponent,
+    IngameComponent,
   ],
   imports: [
     ToastrModule.forRoot(),
@@ -106,6 +115,9 @@ const routes: Routes = [
     MatProgressBarModule,
     MatTabsModule,
     MatSlideToggleModule,
+    MatStepperModule,
+    A11yModule,
+    MatChipsModule,
   ],
   entryComponents: [
     UserEditModalComponent

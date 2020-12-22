@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exceptions\GameException;
 use App\Exceptions\UserException;
 use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
@@ -29,6 +30,7 @@ class UserController extends AbstractController
      */
     public function loginUser(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         if ($this->isUserExistingByUsername($arr["username"])) {
             $toCompare = $this->repository->getUserByUsername($arr["username"]);
@@ -49,6 +51,7 @@ class UserController extends AbstractController
      */
     public function registerUser(ValidatorInterface $validator, Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         $toAdd = $this->serializer->deserializeUser($arr);
         if ($this->isUserExistingByUsername($toAdd->getUsername())) {
@@ -66,23 +69,37 @@ class UserController extends AbstractController
 
     public function updateUser(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         $current = $this->repository->getUserByUsername($arr["username"]);
         if (!$this->isUserExistingByUsername($current->getUsername())) {
             throw new UserException("User doesn't exist!");
         }
 
-        if($this->validatePlayer($arr["validateUsername"], $arr["validatePassword"])) {
-            $this->repository->updateUser($arr["username"], $arr["email"], $arr["money"]);
-            return new JsonResponse($this->serializer->serializerUser($current));
+        $this->repository->updateUser($arr["username"], $arr["email"], $arr["money"], $arr["allTimeCorrect"], $arr["gamesPlayed"], $arr["gamesWon"]);
+        return new JsonResponse($this->serializer->serializerUser($current));
+    }
+
+    public function addMoney(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
+        $arr = json_decode($request->getContent(), true);
+        $current = $this->repository->getUserByUsername($arr["username"]);
+        if (!$this->isUserExistingByUsername($current->getUsername())) {
+            throw new UserException("User doesn't exist!");
         }
 
-        return new JsonResponse("Action not permitted!");
+        if($this->validatePlayer($arr["username"], $arr["password"])) {
+
+            $this->repository->addMoney($arr["username"], $arr["amount"]);
+            return new JsonResponse($this->serializer->serializerUser($current));
+        }
+        throw new UserException("Action not permitted!");
     }
 
 
     public function deleteUser(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $id = $request->get('id');
         $arr = json_decode($request->getContent(), true);
 
@@ -100,6 +117,7 @@ class UserController extends AbstractController
      */
     public function getUserImage(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $name = $request->get('username');
 
         if (!$this->repository->getUserByUsername($name)) {
@@ -112,6 +130,7 @@ class UserController extends AbstractController
 
     public function uploadImage(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         if($this->validatePlayer($arr["username"], $arr["password"])) {
             if (!$this->repository->getUserByUsername($arr["username"])) {
@@ -128,8 +147,8 @@ class UserController extends AbstractController
 
     public function changePassword(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
-        if ($this->validatePlayer($arr["username"], $arr["oldPassword"])) {
             if (!$this->repository->getUserByUsername($arr["username"])) {
                 throw new UserException("User doesn't exist");
             }
@@ -142,8 +161,6 @@ class UserController extends AbstractController
             $newPassword = password_hash($arr["newPassword"], PASSWORD_BCRYPT);
             $this->repository->changePassword($toCompare->getUsername(), $newPassword);
             return new JsonResponse($this->serializer->serializerUser($toCompare));
-        }
-        throw new UserException("Unknown error");
     }
 
 
@@ -155,6 +172,7 @@ class UserController extends AbstractController
      * @param Request $request
      */
     public function sendResetPasswordMail(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
 //        $arr = json_decode($request->getContent(), true);
 //        $email = $arr['email'];
 //        $url = $arr['url'];
@@ -181,6 +199,7 @@ class UserController extends AbstractController
 
 
     public function getMoney(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
         $name = $request->get('username');
 
         if (!$this->repository->getUserByUsername($name)) {
@@ -200,11 +219,13 @@ class UserController extends AbstractController
     }
 
     public function userIsInQueue(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
         $name = $request->get('username');
         return new JsonResponse($this->repository->isUserInQueue($name));
     }
 
     public function getQueuedPlayers(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
         $toReturn = array();
         foreach($this->repository->getUserInQueue() as $user) {
             $toReturn[] = $this->serializer->serializerUser($user);
@@ -241,6 +262,7 @@ class UserController extends AbstractController
 
     public function isUserAdmin(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $id = $request->get('id');
 
         if (!$this->repository->getUserById($id)) {
@@ -253,6 +275,7 @@ class UserController extends AbstractController
 
     public function getAllUsers(Request $request): JsonResponse
     {
+        $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         if(!$this->isUserExistingByUsername($arr["username"])) {
             throw new UserException("User doesn't exist!");
@@ -275,7 +298,7 @@ class UserController extends AbstractController
 
     public function validatePlayer(string $username, string $password): bool {
         $toCompare = $this->repository->getUserByUsername($username);
-        if ($password !== $toCompare->getPassword()) {
+        if ($password !== $toCompare->getPassword() || password_verify($password, $toCompare->getPassword())) {
             throw new UserException("Sorry, this password is not correct!");
         }
         return true;
@@ -287,7 +310,7 @@ class UserController extends AbstractController
      */
     public function isUserExistingByUsername(string $username): bool
     {
-        if ($this->repository->getUserByUsername($username) != null) {
+        if ($this->repository->getUserByUsername($username)) {
             return true;
         }
         return false;
@@ -299,5 +322,11 @@ class UserController extends AbstractController
             return true;
         }
         return false;
+    }
+
+    private function denyUnlessInternal(Request $request) {
+        if($request->getHost() !== 'localhost') {
+            throw new UserException('Permission denied!');
+        }
     }
 }

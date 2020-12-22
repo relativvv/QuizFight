@@ -3,6 +3,8 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {User} from '../entity/User';
 import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
+import {Router} from '@angular/router';
+import {ToastrService} from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +15,7 @@ export class UserService {
   currentUserObject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
   backend = 'http://localhost:8000';
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router, private readonly toastService: ToastrService) {
     this.currentUserObject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
     this.currentUser = this.currentUserObject.asObservable();
   }
@@ -33,14 +35,26 @@ export class UserService {
       );
   }
 
-  public updateUser(username: string, email: string, money: number): Observable<User> {
+  public updateUser(username: string,
+                    email: string,
+                    money: number,
+                    allTimeCorrect: number,
+                    gamesPlayed: number,
+                    gamesWon: number): Observable<User> {
     return this.http.put<User>(this.backend + '/user/update', {
-      validateUsername: this.currentUserValue.username,
-      validatePassword: this.currentUserValue.password,
       username,
       email,
-      money
-    });
+      money,
+      allTimeCorrect,
+      gamesPlayed,
+      gamesWon
+    }).pipe(
+      map(user => {
+        localStorage.removeItem('currentUser');
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.currentUserObject.next(user);
+        return user;
+      }));
   }
 
   public deleteUser(id: number): Observable<User> {
@@ -70,12 +84,24 @@ export class UserService {
     return this.http.get<number>(this.backend + '/user/getmoney?username=' + username);
   }
 
+  public addMoney(amount: number): Observable<number> {
+    return this.http.put<number>(this.backend + '/user/addmoney',
+      { username: this.currentUserValue.username, password: this.currentUserValue.password, amount});
+  }
+
   public get currentUserValue(): User {
     return this.currentUserObject.value;
   }
 
   public updatePassword(username: string, oldPassword: string, newPassword: string): Observable<User> {
-    return this.http.put<User>(this.backend + '/user/changepassword', { username, oldPassword, newPassword });
+    return this.http.put<User>(this.backend + '/user/changepassword', { username, oldPassword, newPassword }).pipe(
+      map(user => {
+        localStorage.removeItem('currentUser');
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        this.currentUserObject.next(user);
+        return user;
+      })
+    );
   }
 
   public sendResetMail(url: string, email: string): Observable<any> {
@@ -93,6 +119,7 @@ export class UserService {
   public logout(): void {
     localStorage.removeItem('currentUser');
     this.currentUserObject.next(null);
-    window.location.href = '/';
+    this.router.navigate(['/']);
+    this.toastService.success('Successfully logged out!');
   }
 }

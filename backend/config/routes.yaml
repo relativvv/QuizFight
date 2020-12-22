@@ -38,6 +38,11 @@ api_get_user_money:
   controller: App\Controller\UserController::getMoney
   methods: GET
 
+api_add_user_money:
+  path: /user/addmoney
+  controller: App\Controller\UserController::addMoney
+  methods: PUT
+
 api_get_user_is_admin:
   path: /user/isadmin
   controller: App\Controller\UserController::isUserAdmin
@@ -77,3 +82,44 @@ api_get_queued_players:
   path: /queue/getqueued
   controller: App\Controller\UserController::getQueuedPlayers
   methods: GET
+
+#  ------------------------------------------------------- API-GAME ------------------------------------------ #
+api_create_new_game:
+  path: /game/createnew
+  controller: App\Controller\GameController::createNewGame
+  methods: POST
+
+api_get_game:
+  path: /game/getgame
+  controller: App\Controller\GameController::getGame
+  methods: POST
+
+api_user_is_ingame:
+  path: /game/isingame
+  controller: App\Controller\GameController::isIngame
+  methods: GET
+
+api_get_full_game:
+  path: /game/getfullgame
+  controller: App\Controller\GameController::getFullGame
+  methods: POST
+
+api_delete_game:
+  path: /game/deletegame
+  controller: App\Controller\GameController::deleteGame
+  methods: POST
+
+api_update_game:
+  path: /game/updategame
+  controller: App\Controller\GameController::updateGame
+  methods: PUT
+
+api_update_question:
+  path: /game/updatequestion
+  controller: App\Controller\GameController::updateQuestion
+  methods: PUT
+
+api_get_all_games:
+  path: /game/getrunning
+  controller: App\Controller\GameController::getAllRunning
+  methods: POST

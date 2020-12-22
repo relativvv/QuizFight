@@ -14,7 +14,7 @@ export class AppComponent implements AfterViewInit {
   loading: boolean;
   currentUser: User;
   imageSrc = '../assets/default_profile_picture.png';
-  money = -1;
+  money = 0;
   isAdmin = false;
 
   constructor(private readonly elementRef: ElementRef,
@@ -24,7 +24,10 @@ export class AppComponent implements AfterViewInit {
     this.currentUser = userService.currentUserValue;
     if (this.currentUser != null) {
       this.loading = true;
-      this.money = this.getMoney(this.currentUser.username);
+      this.userService.getMoney(this.currentUser.username).subscribe((result) => {
+        this.money = result;
+      });
+      this.money = this.renewData(this.currentUser.username);
       this.isAdmin = this.getIsAdmin();
       this.userService.getUserImage(this.currentUser.username).pipe(
         finalize(() => this.loading = false)
@@ -50,10 +53,19 @@ export class AppComponent implements AfterViewInit {
   }
 
 
-  getMoney(username: string): number {
-    this.userService.getMoney(username).subscribe((result) => {
-      this.money = result;
-    });
+  renewData(username: string): number {
+    setInterval(() => {
+      if (this.currentUser) {
+        this.userService.getMoney(username).subscribe((result) => {
+          this.money = result;
+        });
+      }
+
+      this.userService.getUserImage(this.currentUser.username).subscribe((e) => {
+        this.imageSrc = e.toString();
+      });
+
+    }, 3000);
     return this.money;
   }
 

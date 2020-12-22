@@ -7,8 +7,13 @@
       <mat-icon>shopping_basket</mat-icon>
     </button><br />
     <div *ngIf="this.userService.isLoggedIn()">
+      <button disabled routerLink="lootbox" matTooltip="Lootbox" matTooltipPosition="left" mat-icon-button aria-label="Have a look at your Lootboxses">
+        <mat-icon>business_center</mat-icon>
+      </button><br />
+    </div>
+    <div *ngIf="this.userService.isLoggedIn()">
       <button disabled routerLink="inventory" matTooltip="Inventory" matTooltipPosition="left" mat-icon-button aria-label="Open your Inventory">
-        <mat-icon>dashboard</mat-icon>
+        <mat-icon>widgets</mat-icon>
       </button><br />
     </div>
     <div *ngIf="this.userService.isLoggedIn() && isAdmin">
@@ -16,9 +21,6 @@
         <mat-icon>font_download</mat-icon>
       </button>
     </div>
-    <a href="https://bwv-ahaus.de/" matTooltip="BWV" matTooltipPosition="left" mat-icon-button aria-label="Go to the BWV-Homepage">
-      <mat-icon>school</mat-icon>
-    </a><br />
     <mat-divider></mat-divider>
     <div class="to-bottom">
       <mat-divider></mat-divider>
@@ -39,7 +41,7 @@
       </div>
       <div *ngIf="this.userService.isLoggedIn()">
         <button routerLink="userdetails" matTooltip="Userdetails" matTooltipPosition="left" mat-icon-button aria-label="Change your userdata">
-          <img [draggable]="false" [src]="this.imageSrc" alt="" style="border-radius: 100%; border: solid 1px black; max-width: 35px; max-height: 35px; min-height: 35px">
+          <img [draggable]="false" [src]="this.imageSrc" alt="" style="border-radius: 100%; max-width: 35px; max-height: 35px; min-height: 35px">
         </button><br />
       </div>
       <div *ngIf="this.userService.isLoggedIn()">
@@ -51,7 +53,9 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <router-outlet>
-      <mat-spinner style="margin: 50px;" *ngIf="loading"></mat-spinner>
+      <div class="loading-overlay" *ngIf="loading">
+        <mat-spinner color="primary" style="margin-left: 40%; margin-top: 15%;"></mat-spinner>
+      </div>
     </router-outlet>
     <app-footer *ngIf="!this.loading"></app-footer>
   </mat-sidenav-content>

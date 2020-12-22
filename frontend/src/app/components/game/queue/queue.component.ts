@@ -5,6 +5,9 @@ import {finalize} from 'rxjs/operators';
 import {User} from '../../../entity/User';
 import {QueueService} from '../../../services/queue.service';
 import {NavigationEnd, Router} from '@angular/router';
+import {GameService} from '../../../services/game.service';
+import {Game} from '../../../entity/Game';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-queue',
@@ -17,17 +20,21 @@ export class QueueComponent implements OnInit, OnDestroy {
    private readonly userService: UserService,
    private readonly titleService: Title,
    public readonly queueService: QueueService,
-   public readonly router: Router
+   public readonly router: Router,
+   private readonly gameService: GameService,
+   private readonly toastService: ToastrService
   ) {}
 
   imageSrc = '../assets/default_profile_picture.png';
   currentUser: User;
   opponent: User;
   loading: boolean;
-  isInQueue: boolean;
+  isInQueue = true;
   playerInQueueAmount: number;
   queuedPlayers: User[];
   opponentFound = false;
+  toCreate: Game;
+  isIngame = false;
 
   intV: any;
   intV2: any;
@@ -63,18 +70,29 @@ export class QueueComponent implements OnInit, OnDestroy {
 
   public removeQueue(user: User): void {
     if (this.isInQueue) {
-      this.queueService.removeFromQueue(user).subscribe();
+      this.queueService.removeFromQueue(user.username, user.password).subscribe();
     }
     clearInterval(this.intV);
     clearInterval(this.intV2);
   }
 
   public goBack(): void {
-    window.history.back();
+    this.toastService.success('You left the queue');
+    this.removeQueue(this.currentUser);
+    window.location.href = '/';
   }
 
   public inQueue(): void {
     this.intV2 = window.setInterval(() => {
+      this.gameService.isIngame(this.currentUser).subscribe((result) => {
+        this.isIngame = result.ingame;
+        if (result.ingame === true) {
+          this.gameService.getGameByPlayer().subscribe((rslt) => {
+            this.gameService.deleteGame(rslt.id).subscribe();
+          });
+        }
+      });
+
       this.queueService.playerIsInQueue(this.currentUser.username).subscribe((result) => {
         this.isInQueue = result;
       }, () => this.isInQueue = false);
@@ -82,18 +100,22 @@ export class QueueComponent implements OnInit, OnDestroy {
   }
 
   public getQueueAmount(): void {
+    let isReady = true;
     this.intV = setInterval(() => {
-      this.queueService.getAmountOfPlayersInQueue().subscribe((result) => {
-        this.playerInQueueAmount = result;
-        if (this.playerInQueueAmount >= 2) {
-          this.queueService.getQueuedPlayers().subscribe((solution) => {
-            console.log(solution);
-            this.queuedPlayers = solution;
-            this.startGame();
-          });
-          clearInterval(this.intV);
-        }
-      });
+      if (isReady) {
+        isReady = false;
+        this.queueService.getAmountOfPlayersInQueue().subscribe((result) => {
+          this.playerInQueueAmount = result;
+          if (this.playerInQueueAmount >= 2) {
+            this.queueService.getQueuedPlayers().subscribe((solution) => {
+              console.log(solution);
+              this.queuedPlayers = solution;
+              this.startGame();
+            });
+            clearInterval(this.intV);
+          }
+        }, () => {}, () => { isReady = true; });
+      }
     }, 1000);
   }
 
@@ -111,16 +133,49 @@ export class QueueComponent implements OnInit, OnDestroy {
     if (this.opponent !== null) {
       document.getElementById('waiting-container').remove();
       this.opponentFound = true;
-      this.removeQueue(this.currentUser);
-      this.removeQueue(this.opponent);
-      //INSERT INTO GAME TABLE CREATE GAME
+
+      this.toCreate = {
+          currentDifficulty: null,
+          p1Status: 'q1',
+          p2Status: 'q1',
+          p1HP: 100,
+          p2HP: 100,
+          p1: this.currentUser,
+          p2: this.opponent,
+          p1Locked: null,
+          p2Locked: null,
+          p1Correct: 0,
+          p2Correct: 0,
+          answers: null,
+          correctAnswer: null,
+          question: null,
+          questionNumber: 1,
+          mode: 'ingame'
+        };
+
+      const played = this.currentUser.gamesPlayed + 1;
+
+      console.log(played);
+      this.userService.updateUser(
+        this.currentUser.username,
+        this.currentUser.email,
+        this.currentUser.money,
+        this.currentUser.allTimeCorrect,
+        played,
+        this.currentUser.gamesWon
+      ).subscribe();
       window.setTimeout(() => {
-        window.location.href = '/game';
+        this.router.navigate(['/game']);
       }, 3500);
+      this.gameService.createNewGame(this.toCreate).subscribe();
+      this.removeQueue(this.currentUser);
+      this.toastService.success('Game found!');
+      const audio = new Audio('../../../../assets/game-found.mp3');
+      audio.play();
     } else {
-      alert('An error ocurred!');
       this.removeQueue(this.currentUser);
       window.location.href = '/';
+      this.toastService.error('An error ocurred, you were kicked out of the queue!');
     }
   }
 }

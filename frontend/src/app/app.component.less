@@ -24,10 +24,6 @@ mat-icon {
   user-select: none;
 }
 
-app-footer {
-  bottom: 0;
-}
-
 mat-icon:hover {
   color: #0ed6d6;
 }
@@ -36,3 +32,30 @@ mat-icon:hover {
   color: #ff2727;
 }
 
+app-footer {
+  width: 100%;
+  position: absolute;
+  top: 100%;
+  margin-top: 10%;
+  background-color: rgb(55, 55, 55);
+}
+
+*:focus {
+  outline: none;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  background-color: #373737;
+  width: 115%;
+  height: 100%;
+  opacity: 0.925;
+  text-align: center;
+  z-index: 9999;
+  font-size: 1em;
+  mat-spinner {
+    position: relative;
+    margin: auto;
+  }
+}

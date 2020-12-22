@@ -25,11 +25,11 @@ export class QueueService {
     return this.http.get<boolean>(this.backend + '/user/isinqueue?username=' + username);
   }
 
-  public addPlayerToQueue(user: User): Observable<User> {
-    return this.http.post<User>(this.backend + '/queue/addtoqueue', user);
+  public addPlayerToQueue(username: string, password: string): Observable<User> {
+    return this.http.post<User>(this.backend + '/queue/addtoqueue', {username, password});
   }
 
-  public removeFromQueue(user: User): Observable<User> {
-    return this.http.post<User>(this.backend + '/queue/removefromqueue', user);
+  public removeFromQueue(username: string, password: string): Observable<User> {
+    return this.http.post<User>(this.backend + '/queue/removefromqueue', {username, password});
   }
 }

@@ -10,6 +10,9 @@
             <th style="text-align: left">E-Mail Address</th>
             <th style="text-align: left">Is Admin?</th>
             <th style="text-align: left">Money</th>
+            <th style="text-align: left">Correct answers</th>
+            <th style="text-align: left">Games played</th>
+            <th style="text-align: left">Games won</th>
             <th>Edit</th>
             <th>Delete</th>
           </tr>
@@ -18,8 +21,11 @@
         <tr style='text-align: center' *ngFor="let user of users.slice(adminStartIndex, adminEndIndex)">
           <td style="text-align: left">{{ user.username }}</td>
           <td style="text-align: left">{{ user.email }}</td>
-          <td style="text-align: left">{{ getBooleanAsString(user.isAdmin) }}</td>
-          <td style="text-align: left">{{ user.money }}</td>
+          <td style="text-align: left">{{ user.isAdmin | booleanAsString }}</td>
+          <td style="text-align: left">{{ user.money }}$</td>
+          <td style="text-align: left">{{ user.allTimeCorrect }}</td>
+          <td style="text-align: left">{{ user.gamesPlayed }}</td>
+          <td style="text-align: left">{{ user.gamesWon }}</td>
           <td style="width: 4%">
             <button [disabled]="user.isAdmin" (click)="openEditingModal(user)" mat-fab style="background-color: orange" aria-label="Edit user">
               <mat-icon>edit</mat-icon>
@@ -32,7 +38,6 @@
           </td>
         </tr>
         </tbody>
-        <hr />
       </table>
       <mat-paginator
         #adminPaginator
@@ -48,7 +53,47 @@
 
 
     <mat-tab label="Running Games">
-
+      <mat-spinner style="margin: 60px;" *ngIf="!currentGames"></mat-spinner>
+      <table *ngIf="this.currentGames != null" class="table table-dark table-striped call-table">
+        <thead>
+        <tr style="text-align: center">
+          <th style="text-align: left">Player 1</th>
+          <th style="text-align: left">Player 2</th>
+          <th style="text-align: left">P1 - Correct</th>
+          <th style="text-align: left">P2 - Correct</th>
+          <th style="text-align: left">Question</th>
+          <th style="text-align: left">Questionnumber</th>
+          <th style="text-align: left">P1 - HP</th>
+          <th style="text-align: left">P2 - HP</th>
+          <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr style='text-align: center' *ngFor="let game of currentGames.slice(adminStartIndex, adminEndIndex)">
+          <td style="text-align: left">{{ game.p1.username }}</td>
+          <td style="text-align: left">{{ game.p2.username }}</td>
+          <td style="text-align: left">{{ game.p1Correct }}$</td>
+          <td style="text-align: left">{{ game.p2Correct }}</td>
+          <td style="text-align: left">{{ game.question }}</td>
+          <td style="text-align: left">{{ game.questionNumber }}</td>
+          <td style="text-align: left">{{ game.p1HP }}</td>
+          <td style="text-align: left">{{ game.p2HP }}</td>
+          <td style="width: 4%">
+            <button (click)="deleteGame(game.id)" mat-fab color="warn" aria-label="Delete game">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <mat-paginator
+        #adminPaginator
+        *ngIf="users"
+        [pageSizeOptions]="[5, 10, 20, 30, 40, 50, 75, 100]"
+        [length]="users.length"
+        [pageSize]="20"
+        (page)="pageChange($event)"
+        showFirstLastButtons style="width: 90%; margin: auto; background-color: #1d1d1d; color: white;"></mat-paginator>
     </mat-tab>
   </mat-tab-group>
 </main>
