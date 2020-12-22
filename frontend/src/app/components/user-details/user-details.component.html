@@ -1,54 +1,51 @@
 <div *ngIf="this.userService.isLoggedIn() && this.currentUser; else noPermission" class="user-details-parent">
-  <mat-card class="user-details">
-    <div class="user-details-inner-parent">
-      <img [draggable]="false" [src]="this.imageSrc" alt="" style="border: solid 1px black; min-width: 400px; max-height: 400px; min-height: 400px">
-      <mat-card style="height: 400px; margin-top: 20px; margin-right: 20px">
-        <h1><u>User-Details</u></h1>
-        <h2>Username: <span style="display: inline-block; width: 95px"></span> {{ currentUser.username }}</h2>
-        <h2>E-Mail Address: <span style="display: inline-block; width: 50px"></span> {{ currentUser.email }}</h2><br />
-        <h2 *ngIf="!this.loading">Money: <span style="display: inline-block; width: 50px"></span> {{ money }} $</h2>
-        <mat-spinner style="margin: 35px;" *ngIf="loading"></mat-spinner>
-      </mat-card>
-    </div>
-    <input style="margin-top: 35px; margin-bottom: 20px;" id="picture" type="file" (change)="picked($event)"><br />
-    <button mat-flat-button color="warn" (click)="submitImage()">Upload</button>
-  </mat-card>
-
-  <mat-card class="pw-change">
-    <h1>Change your password</h1>
-    <form [formGroup]="this.form" class="pw-change-form">
-      <ngb-alert [dismissible]="false" [hidden]="!showError" [type]="'danger'">{{ errorMessage }}</ngb-alert>
-      <ngb-alert [dismissible]="false" [hidden]="!showSuccess" [type]="'success'">Password changed!</ngb-alert>
-      <mat-form-field class="pw-change-full-width">
-        <mat-label>Old password</mat-label>
-        <input formControlName="oldPassword" type="password" matInput placeholder="Type in your OLD password here">
-      </mat-form-field>
-      <mat-error *ngIf="this.form.get('oldPassword').invalid">
-        <span *ngIf="this.form.get('oldPassword').errors.required && this.form.get('oldPassword').dirty">You need to set this!</span>
-        <span *ngIf="this.form.get('oldPassword').errors.minlength">You need to set at least 3 characters</span>
-        <span *ngIf="this.form.get('oldPassword').errors.maxlength">You can just set 10 characters</span>
-      </mat-error>
-      <mat-form-field class="pw-change-full-width">
-        <mat-label>New password</mat-label>
-        <input formControlName="newPassword" type="password" matInput placeholder="Type in your new password here">
-      </mat-form-field>
-      <mat-error *ngIf="this.form.get('newPassword').invalid">
-        <span *ngIf="this.form.get('newPassword').errors.required && this.form.get('newPassword').dirty">You need set this!</span>
-        <span *ngIf="this.form.get('newPassword').errors.minlength">You need to set at least 3 characters</span>
-        <span *ngIf="this.form.get('newPassword').errors.maxlength">You can just set 10 characters</span>
-      </mat-error>
-      <mat-form-field class="pw-change-full-width">
-        <mat-label>Repeat password</mat-label>
-        <input formControlName="newPasswordRepeat" type="password" matInput placeholder="Type in your new password here">
-      </mat-form-field>
-      <mat-error *ngIf="this.form.get('newPasswordRepeat').invalid">
-        <span *ngIf="this.form.get('newPasswordRepeat').errors.required && this.form.get('newPasswordRepeat').dirty">You need to repeat your password</span>
-        <span *ngIf="this.form.get('newPasswordRepeat').errors.minlength">You need to set at least 3 characters</span>
-        <span *ngIf="this.form.get('newPasswordRepeat').errors.maxlength">You can just set 10 characters</span>
-      </mat-error>
-    </form>
-    <button [disabled]="this.form.invalid" mat-flat-button color="warn" (click)="changePw()">Change password</button>
-  </mat-card>
+  <main>
+    <h1 style="font-size: 4em; margin-bottom: 100px;"><b>User-Details</b></h1>
+    <mat-card class="user-details">
+      <div class="image">
+        <img [draggable]="false" [src]="this.imageSrc" alt="your profile picture">
+        <input type="file" (change)="picked($event)" id="picture">
+      </div>
+      <div class="second-part">
+        <div class="hr-top">
+          <h1><b>{{ this.currentUser.username }}</b></h1>
+          <mat-chip-list>
+            <mat-chip
+            [class.first]="rank === 1"
+            [class.second]="rank === 2"
+            [class.third]="rank === 3"
+            [class.other-rank]="rank > 3">Rank #{{this.rank}}</mat-chip>
+          </mat-chip-list>
+        </div>
+        <hr>
+        <div class="hr-bottom">
+          <div class="user-data">
+            <h2><b>Some data:</b></h2><br />
+            <span class="data">E-Mail: {{ this.currentUser.email }}</span><br />
+            <span class="data">Money: {{ this.currentUser.money }}$</span><br /><br />
+            <h2><b>Your stats:</b></h2><br />
+            <span class="statistic">All time correct: {{ this.currentUser.allTimeCorrect }}</span><br />
+            <span class="statistic">Games played: {{ this.currentUser.gamesPlayed }}</span><br />
+            <span class="statistic">Games won: {{ this.currentUser.gamesWon }}</span><br />
+          </div>
+          <div class="options">
+              <button (click)="submitImage()" mat-fab style="background-color: limegreen; margin-left: 10px;" aria-label="upload image">
+                <mat-icon>file_upload</mat-icon>
+              </button><br />
+            <button (click)="openEditingModal(this.currentUser)" mat-fab style="background-color: orange" aria-label="change email">
+              <mat-icon>edit</mat-icon>
+            </button><br />
+            <button (click)="openPasswordChangeModal(this.currentUser)" mat-fab style="background-color: mediumpurple" aria-label="change pw">
+              <mat-icon>lock</mat-icon>
+            </button><br /><br />
+            <button mat-fab color="warn" aria-label="delete user">
+              <mat-icon>delete</mat-icon>
+            </button><br />
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </main>
 </div>
 
 <ng-template #noPermission>

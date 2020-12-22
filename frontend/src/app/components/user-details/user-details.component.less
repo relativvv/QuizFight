@@ -1,61 +1,99 @@
 main {
-  width: 1500px;
-  margin: auto;
+  width: 1000px;
+  margin: 50px auto auto;
 }
+
 .user-details {
-  flex: 6;
-  height: auto;
-  margin: 40px;
-}
-
-.pw-change {
-  flex: 3.5;
-  height: 450px;
-  margin: 40px;
-}
-
-.user-details-parent {
   display: flex;
-  flex-wrap: wrap;
+  .image {
+    flex: 1;
+    text-align: center;
+    img {
+      width: 350px;
+      height: 350px;
+      border-radius: 100%;
+      box-shadow: black 2px 5px 10px;
+      margin: 10px;
+    }
+  }
+  div {
+    width: 100%;
+    .hr-top {
+      height: 7%;
+      display: flex;
+      h1 {
+        flex: 1;
+        justify-content: flex-start;
+        font-size: 2.5em;
+      }
+      mat-chip-list {
+        mat-chip {
+          font-size: 1.8em;
+        }
+      }
+    }
+
+    .hr-bottom {
+      display: flex;
+      margin-left: 30px;
+      .user-data {
+        h2 {
+          display: inline-block;
+          margin-top: 15px;
+        }
+        .statistic {
+          display: inline-block;
+          font-size: 1.3em;
+          margin-bottom: 7px;
+        }
+        .data {
+          display: inline-block;
+          font-size: 1.5em;
+          margin-bottom: 10px;
+        }
+      }
+
+      .options {
+        margin-top: 5%;
+        text-align: right;
+        margin-right: 8%;
+        button {
+          margin-bottom: 15px;
+        }
+        .file-upload {
+          display: flex;
+        }
+      }
+    }
+
+    hr {
+      border: solid 1px white;
+    }
+  }
 }
 
-.user-details-inner-parent {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.user-details-inner-parent img {
-  flex: 1;
-  box-shadow: #222222 1px 1px 10px;
-  border-radius: 30px;
-}
-
-.user-details-inner-parent mat-card {
-  flex: 2;
-  margin-left: 25px;
-  box-shadow: #222222 1px 1px 4px;
-  padding: 25px;
-}
-
-.user-details-inner-parent h1 {
-  margin-bottom: 55px;
-}
-
-.pw-change-form {
-  margin: 35px;
+#picture {
+  margin-top: 15px;
 }
 
 
-.pw-change-form {
-  min-width: 150px;
-  max-width: 500px;
-  width: 100%;
+.first {
+  background-color: #DAA520;
 }
 
-.pw-change-full-width {
-  margin-right: 25px;
-  width: 84%;
+.second {
+  background-color: #C0C0C0;
+  color: black;
 }
+
+.third {
+  background-color: #cc6633;
+}
+
+.other-rank {
+  background-color: darkcyan;
+}
+
 
 *:focus {
   outline: none;

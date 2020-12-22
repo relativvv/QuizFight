@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {User} from '../../entity/User';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormGroup} from '@angular/forms';
 import {finalize} from 'rxjs/operators';
 import {Title} from '@angular/platform-browser';
-import {ToastrService} from "ngx-toastr";
+import {ToastrService} from 'ngx-toastr';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {UserDetailsEditModalComponent} from '../modals/user-details-edit-modal/user-details-edit-modal.component';
+import {ChangePasswordComponent} from '../modals/change-password/change-password.component';
 
 @Component({
   selector: 'app-user-details',
@@ -14,21 +17,21 @@ import {ToastrService} from "ngx-toastr";
 export class UserDetailsComponent implements OnInit {
 
   currentUser: User;
-  errorMessage: string;
-  showError = false;
-  showSuccess = false;
   form: FormGroup;
   imageSrc: string;
   selectedFile: any;
   selectedFileBase64: string;
   loading: boolean;
-  money: number;
+  rank: number;
 
-  constructor(public readonly userService: UserService, private readonly titleService: Title, private readonly formBuilder: FormBuilder, private readonly toastService: ToastrService) {
+  constructor(
+    public readonly userService: UserService,
+    private readonly titleService: Title,
+    private readonly toastService: ToastrService,
+    private readonly modalService: NgbModal) {
     this.currentUser = userService.currentUserValue;
     if (this.currentUser != null) {
       this.loading = true;
-      this.money = this.getMoney(this.currentUser.username);
       this.userService.getUserImage(this.currentUser.username).pipe(
         finalize(() => this.loading = false)
       ).subscribe((e) => {
@@ -39,8 +42,9 @@ export class UserDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.titleService.setTitle('QuizFight - Userdetails');
-    this.createForm();
-    this.registerChanges();
+    this.userService.getRank(this.currentUser.id).subscribe((ans) => {
+      this.rank = ans;
+    });
   }
 
   public picked(event): void {
@@ -76,44 +80,30 @@ export class UserDetailsComponent implements OnInit {
     (document.getElementById('picture') as HTMLInputElement).value = null;
   }
 
-  private createForm(): void {
-    this.form = this.formBuilder.group({
-      oldPassword: ['', [Validators.required, Validators.maxLength(255), Validators.minLength(5)]],
-      newPassword: ['', [Validators.required, Validators.maxLength(255), Validators.minLength(5)]],
-      newPasswordRepeat: ['', [Validators.required, Validators.maxLength(255), Validators.minLength(5)]]
-    });
-  }
-
-  public changePw(): void {
-    if (this.form.get('newPasswordRepeat').value === this.form.get('newPassword').value) {
-      this.userService.updatePassword(
-        this.currentUser.username,
-        this.form.get('oldPassword').value,
-        this.form.get('newPassword').value).subscribe((f) => {
-        this.showSuccess = true;
-      }, (e) => { this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
-                  this.errorMessage = this.errorMessage.slice(0, -1); });
-      this.form.reset();
-    } else {
-      this.showError = true;
-      this.errorMessage = 'Passwords doesn\'t match!';
+  public deleteUser(): void {
+    if (confirm('Are you sure, you want to delete this User?')) {
+      this.userService.deleteUser(this.currentUser.id).subscribe(() => {
+        this.userService.logout();
+        this.toastService.success('User deleted');
+      }, () => {
+        this.toastService.error('An error ocurred');
+      });
     }
   }
 
-  getMoney(username: string): number {
-    this.loading = true;
-    this.userService.getMoney(username).pipe(
-    ).subscribe((result) => {
-      this.money = result;
-      this.loading = false;
+  openEditingModal(user: User): void {
+    const modalRef = this.modalService.open(UserDetailsEditModalComponent);
+    modalRef.componentInstance.user = user;
+    modalRef.closed.subscribe(() => {
+      this.currentUser = this.userService.currentUserValue;
     });
-    return 0;
   }
 
-  public registerChanges(): void {
-    this.form.valueChanges.subscribe((e) => {
-      this.showSuccess = false;
-      this.showError = false;
+  openPasswordChangeModal(user: User): void {
+    const modalRef = this.modalService.open(ChangePasswordComponent);
+    modalRef.componentInstance.user = user;
+    modalRef.closed.subscribe(() => {
+      this.currentUser = this.userService.currentUserValue;
     });
   }
 }

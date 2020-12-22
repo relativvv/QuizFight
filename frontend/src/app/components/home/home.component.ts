@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {Title} from '@angular/platform-browser';
 import {QueueService} from '../../services/queue.service';
 import {User} from '../../entity/User';
 import {ToastrService} from 'ngx-toastr';
 import {GameService} from "../../services/game.service";
+import {MatPaginator} from "@angular/material/paginator";
 
 @Component({
   selector: 'app-home',
@@ -23,10 +24,17 @@ export class HomeComponent implements OnInit {
   public user: User;
   public fact: string;
   private facts: string[];
+  public top: User[];
+  @ViewChild('topPaginator', {static: false}) topPaginator: MatPaginator;
+  public topStartIndex;
+  public topEndIndex;
 
   ngOnInit(): void {
     this.titleService.setTitle('QuizFight - Home');
     this.user = this.userService.currentUserValue;
+    this.getTopList();
+    this.topStartIndex = 0;
+    this.topEndIndex = 20;
     this.facts = [
       'McDonald’s once made bubblegum-flavored broccoli',
       'Some fungi create zombies, then control their minds',
@@ -72,5 +80,19 @@ export class HomeComponent implements OnInit {
 
   private randomFact(): void {
     this.fact = this.facts[Math.floor(Math.random() * this.facts.length)];
+  }
+
+  private getTopList(): void {
+    this.userService.getTopList().subscribe((result) => {
+      this.top = result;
+    });
+  }
+
+  public pageChange(event): void {
+    this.topStartIndex = event.pageIndex * event.pageSize;
+    this.topEndIndex = this.topStartIndex + event.pageSize;
+    if (this.topEndIndex > this.top.length) {
+      this.topEndIndex = this.top.length;
+    }
   }
 }
