@@ -4,6 +4,7 @@ import {User} from '../../entity/User';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {finalize} from 'rxjs/operators';
 import {Title} from '@angular/platform-browser';
+import {ToastrService} from "ngx-toastr";
 
 @Component({
   selector: 'app-user-details',
@@ -23,7 +24,7 @@ export class UserDetailsComponent implements OnInit {
   loading: boolean;
   money: number;
 
-  constructor(public readonly userService: UserService, private readonly titleService: Title, private readonly formBuilder: FormBuilder) {
+  constructor(public readonly userService: UserService, private readonly titleService: Title, private readonly formBuilder: FormBuilder, private readonly toastService: ToastrService) {
     this.currentUser = userService.currentUserValue;
     if (this.currentUser != null) {
       this.loading = true;
@@ -54,7 +55,7 @@ export class UserDetailsComponent implements OnInit {
     const reader = new FileReader();
 
     if (!file.type.match(pattern)) {
-      alert('invalid format');
+      this.toastService.error('The file has an invalid format');
       this.selectedFile = null;
       (document.getElementById('picture') as HTMLInputElement).value = null;
       return;
@@ -71,9 +72,8 @@ export class UserDetailsComponent implements OnInit {
   public submitImage(): void {
     this.userService.uploadProfilePicture(this.selectedFileBase64).subscribe();
     this.imageSrc = this.selectedFileBase64;
-    alert('Profile picture changed!');
+    this.toastService.success('Profile picture changed!');
     (document.getElementById('picture') as HTMLInputElement).value = null;
-    location.reload();
   }
 
   private createForm(): void {
@@ -90,10 +90,9 @@ export class UserDetailsComponent implements OnInit {
         this.currentUser.username,
         this.form.get('oldPassword').value,
         this.form.get('newPassword').value).subscribe((f) => {
-        console.log(f);
         this.showSuccess = true;
       }, (e) => { this.showError = true; this.errorMessage = e.error.split('<!--').pop().split(' (500 Internal Server Error) -->');
-                  this.errorMessage = this.errorMessage.slice(0, -1); console.log(e); });
+                  this.errorMessage = this.errorMessage.slice(0, -1); });
       this.form.reset();
     } else {
       this.showError = true;
@@ -108,7 +107,7 @@ export class UserDetailsComponent implements OnInit {
       this.money = result;
       this.loading = false;
     });
-    return -1;
+    return 0;
   }
 
   public registerChanges(): void {
@@ -116,13 +115,5 @@ export class UserDetailsComponent implements OnInit {
       this.showSuccess = false;
       this.showError = false;
     });
-  }
-
-  changePassword(): void {
-
-  }
-
-  uploadImage(): void {
-
   }
 }

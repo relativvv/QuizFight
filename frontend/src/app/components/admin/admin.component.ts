@@ -7,6 +7,8 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UserEditModalComponent} from '../modals/user-edit-modal/user-edit-modal.component';
 import {ToastrService} from 'ngx-toastr';
 import {finalize} from 'rxjs/operators';
+import {Game} from "../../entity/Game";
+import {GameService} from "../../services/game.service";
 
 @Component({
   selector: 'app-admin',
@@ -20,6 +22,7 @@ export class AdminComponent implements OnInit {
   currentUser: User;
   isAdmin: boolean;
   loading = true;
+  currentGames: Game[];
   @ViewChild('adminPaginator', {static: false}) adminPaginator: MatPaginator;
   public adminStartIndex;
   public adminEndIndex;
@@ -29,7 +32,8 @@ export class AdminComponent implements OnInit {
     private readonly title: Title,
     private readonly userService: UserService,
     private readonly modalService: NgbModal,
-    private readonly toastService: ToastrService
+    private readonly toastService: ToastrService,
+    private readonly gameService: GameService
   ) {
     this.currentUser = userService.currentUserValue;
     this.getUsers();
@@ -37,9 +41,16 @@ export class AdminComponent implements OnInit {
     this.adminStartIndex = 0;
     this.adminEndIndex = 20;
     this.getIsAdmin();
+    this.getAllGames();
   }
 
   ngOnInit(): void {}
+
+  getAllGames(): void {
+    this.gameService.getAllGames().subscribe((result) => {
+      this.currentGames = result;
+    });
+  }
 
   getUsers(): void {
     this.userService.getAllUser(this.currentUser).subscribe((result) => {
@@ -65,12 +76,21 @@ export class AdminComponent implements OnInit {
   }
 
   deleteUser(id: number): void {
-    if (confirm('Are you sure, you want to delete this User?')) {
+    if (confirm('Are you sure, you want to delete this user?')) {
       this.userService.deleteUser(id).subscribe(() => {
         this.toastService.success('User successfully deleted!');
         this.users = null;
         this.getUsers();
       }, () => { this.toastService.error('An error ocurred!'); });
+    }
+  }
+
+  deleteGame(id: number): void {
+    if (confirm('Are you sure, you want to delete this game?')) {
+      this.gameService.deleteGame(id).subscribe();
+      this.toastService.success('Game successfully deleted!');
+      this.currentGames = null;
+      this.getAllGames();
     }
   }
 
@@ -82,15 +102,5 @@ export class AdminComponent implements OnInit {
       this.isAdmin = result;
     });
     return this.isAdmin;
-  }
-
-  getBooleanAsString(toEdit: boolean): string {
-    switch (toEdit) {
-      case true:
-        return 'Yes';
-      case false:
-      default:
-        return 'No';
-    }
   }
 }

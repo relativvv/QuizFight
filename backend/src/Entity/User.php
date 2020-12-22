@@ -43,6 +43,21 @@ class User
     private $money;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $allTimeCorrect;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $gamesWon;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $gamesPlayed;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     private $queue;
@@ -52,7 +67,12 @@ class User
      */
     private $isAdmin;
 
-    public function __construct(string $username, string $email, string $password, int $money = 0, string $image = null, bool $queue = null, int $id = null)
+    /**
+     * @ORM\OneToOne(targetEntity=Game::class, mappedBy="p1", cascade={"persist", "remove"})
+     */
+    private $game;
+
+    public function __construct(string $username, string $email, string $password, int $allTimeCorrect = 0, int $gamesPlayed = 0, int $gamesWon = 0, int $money = 0, bool $isAdmin = false, string $image = null, bool $queue = null, int $id = null)
     {
         if($id !== null) {
             $this->id = $id;
@@ -61,8 +81,12 @@ class User
         $this->email = $email;
         $this->password = $password;
         $this->image = $image;
+        $this->isAdmin = $isAdmin;
         $this->money = $money;
         $this->queue = $queue;
+        $this->gamesWon = $gamesWon;
+        $this->gamesPlayed = $gamesPlayed;
+        $this->allTimeCorrect = $allTimeCorrect;
     }
 
     public function getId(): ?int
@@ -130,6 +154,70 @@ class User
         return $this;
     }
 
+    public function addMoney(int $money): self
+    {
+        $this->money = $this->getMoney() + $money;
+
+        return $this;
+    }
+
+    public function getAllTimeCorrect(): ?int
+    {
+        return $this->allTimeCorrect;
+    }
+
+    public function setAllTimeCorrect(int $correct): self
+    {
+        $this->allTimeCorrect = $correct;
+
+        return $this;
+    }
+
+    public function addAllTimeCorrect(int $correct): self
+    {
+        $this->allTimeCorrect = $this->getAllTimeCorrect() + $correct;
+
+        return $this;
+    }
+
+    public function getGamesWon(): ?int
+    {
+        return $this->gamesWon;
+    }
+
+    public function setGamesWon(int $won): self
+    {
+        $this->gamesWon = $won;
+
+        return $this;
+    }
+
+    public function addGamesWon(int $won): self
+    {
+        $this->gamesWon = $this->getGamesWon() + $won;
+
+        return $this;
+    }
+
+    public function getPlayedGames(): ?int
+    {
+        return $this->gamesPlayed;
+    }
+
+    public function setPlayedGames(int $played): self
+    {
+        $this->gamesPlayed = $played;
+
+        return $this;
+    }
+
+    public function addPlayedGames(int $played): self
+    {
+        $this->gamesPlayed = $this->getPlayedGames() + $played;
+
+        return $this;
+    }
+
     public function isInQueue(): bool
     {
         return $this->queue;
@@ -150,6 +238,23 @@ class User
     public function setIsAdmin(?bool $isAdmin): self
     {
         $this->isAdmin = $isAdmin;
+
+        return $this;
+    }
+
+    public function getGame(): ?Game
+    {
+        return $this->game;
+    }
+
+    public function setGame(Game $game): self
+    {
+        $this->game = $game;
+
+        // set the owning side of the relation if necessary
+        if ($game->getP1() !== $this) {
+            $game->setP1($this);
+        }
 
         return $this;
     }

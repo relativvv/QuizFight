@@ -1,7 +1,13 @@
 <main>
   <h1 style="font-size: 2em; margin-bottom: 50px;">Welcome <span *ngIf="this.user">{{this.user.username}}&nbsp;</span>to <strong>𝓠𝓾𝓲𝔃𝓕𝓲𝓰𝓱𝓽</strong></h1>
-  <p class="info-text">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+  <p class="info-text"><b>"Two things are infinite, the universe and human stupidity, but I'm not quite sure about the universe yet." <br />~Albert Einstein</b><br /><br />Can you proof the opposite? Here you get the chance to
+  QuizFight is a game, created by 3 guys. If you click on 'play', you'll get into a queue, waiting for a worthy opponent. If you find one, you will get redirected into a match. Both of you will get the same questions. If you answer right
+  you can deal damage to your opponent. The damage depends on your equipment, you can customize in your inventory with items you can get from lootboxes which you can get by playing. Anyway, if the HP of a player fell to ZERO, that player lost.
+  <br /><br />And please be fair and prevent using things like Google!</p>
   <button mat-raised-button class="join-button" (click)="insertIntoQueue()" routerLink="/queue" [disabled]="!this.userService.isLoggedIn()" color="primary">Play now! <mat-icon>play_arrow</mat-icon></button> <br/>
   <ngb-alert [type]="'danger'" *ngIf="!this.userService.isLoggedIn()" [dismissible]="false">You need to be logged in to play the game!</ngb-alert><br />
-  <p class="info-text" style="margin-bottom: 100px;">Lorem ipsum dolor sit amuyam erat, sed diam voluptua. At vero eoset. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore mat, sed diam volua takimata sanctus est Lorem ipsum dolor sit amet.</p>
+  <p class="info-text" style="margin-bottom: 100px;">
+    <span style="font-size: 2em"><u>Fun-Fact</u></span><br /><br />
+    {{fact}}
+  </p>
 </main>

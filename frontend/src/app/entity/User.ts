@@ -7,4 +7,7 @@ export interface User {
   image?: string | null;
   queue?: any | null;
   money: number;
+  allTimeCorrect: number;
+  gamesPlayed: number;
+  gamesWon: number;
 }
