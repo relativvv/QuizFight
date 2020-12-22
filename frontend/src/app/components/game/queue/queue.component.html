@@ -12,7 +12,7 @@
     </div>
   </div>
 
-  <div *ngIf="opponentFound && this.opponent">
+  <div class='opponent-found' *ngIf="opponentFound && this.opponent">
     <h2 style="font-size: 2em;"><span style="margin-right: 15px;">{{currentUser.username}}</span> VS <span style="margin-left: 15px;">{{opponent.username}}</span></h2><br />
     <img id="yours" class="animation-right" [src]="imageSrc" alt="your profile picture">
     <img id="opponent" class="animation-left" [src]="opponent.image" alt="opponents profile picture">

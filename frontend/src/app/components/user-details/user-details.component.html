@@ -1,6 +1,6 @@
 <div *ngIf="this.userService.isLoggedIn() && this.currentUser; else noPermission" class="user-details-parent">
   <main>
-    <h1 style="font-size: 4em; margin-bottom: 100px;"><b>User-Details</b></h1>
+    <h1 style="font-size: 4em; margin-bottom: 100px; line-height: 1em;"><b>User-Details</b></h1>
     <mat-card class="user-details">
       <div class="image">
         <img [draggable]="false" [src]="this.imageSrc" alt="your profile picture">

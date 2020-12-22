@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <div class="finished" *ngIf="this.currentMode === 'finished' && !loading">
+    <div class="finished" *ngIf="this.currentMode === 'test' && !loading">
       <div class="player-info">
         <img [src]="game.p1.username === currentUser.username ? game.p1.image : game.p2.image" *ngIf="game" alt="opponent profile picture" [draggable]="false">
         <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: left;" mode="determinate" color="primary" [value]="game.p1.username === currentUser.username ? game.p1HP : game.p2HP"></mat-progress-bar>

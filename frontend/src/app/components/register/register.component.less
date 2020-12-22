@@ -20,28 +20,44 @@ mat-error {
 }
 
 main {
-  width: 700px;
+  width: 60%;
   margin: 50px auto auto;
   text-align: center;
   height: 50%;
 }
 
 .register-overlay {
+  display: grid;
+  justify-content: center;
+  grid-template-areas: "a a a"
+                       "b b b"
+                       "c c c";
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #373737;
-  width: 115%;
-  height: 100%;
   opacity: 0.75;
-  text-align: center;
   z-index: 9999;
   font-size: 1em;
   mat-spinner {
-    position: relative;
-    margin: auto;
+    grid-area: b;
   }
 }
 
 *:focus {
   outline: none;
+}
+
+@media(max-width: 900px) {
+  * {
+    font-size: 1.06em;
+  }
+  main {
+    width: 90%;
+  }
+  mat-form-field {
+    width: 99%;
+  }
 }
