@@ -23,8 +23,9 @@ class UserSerializer {
         $allTimeCorrect = $toDeserialize["allTimeCorrect"];
         $won = $toDeserialize["gamesWon"];
         $played = $toDeserialize["gamesPlayed"];
+        $token = $toDeserialize["resetToken"];
 
-        return new User($username, $email, $password, $allTimeCorrect, $played, $won, $money, $admin, $image, $queue);
+        return new User($username, $email, $password, $token, $allTimeCorrect, $played, $won, $money, $admin, $image, $queue);
     }
 
 
@@ -41,6 +42,7 @@ class UserSerializer {
         $finalResponse["allTimeCorrect"] = $user->getAllTimeCorrect();
         $finalResponse["gamesWon"] = $user->getGamesWon();
         $finalResponse["gamesPlayed"] = $user->getPlayedGames();
+        $finalResponse["resetToken"] = $user->getResetToken();
 
         return $finalResponse;
     }

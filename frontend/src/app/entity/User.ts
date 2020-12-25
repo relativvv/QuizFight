@@ -10,4 +10,5 @@ export interface User {
   allTimeCorrect: number;
   gamesPlayed: number;
   gamesWon: number;
+  resetToken: string | null
 }

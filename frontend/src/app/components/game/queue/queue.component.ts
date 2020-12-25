@@ -84,15 +84,6 @@ export class QueueComponent implements OnInit, OnDestroy {
 
   public inQueue(): void {
     this.intV2 = window.setInterval(() => {
-      this.gameService.isIngame(this.currentUser).subscribe((result) => {
-        this.isIngame = result.ingame;
-        if (result.ingame === true) {
-          this.gameService.getGameByPlayer().subscribe((rslt) => {
-            this.gameService.deleteGame(rslt.id).subscribe();
-          });
-        }
-      });
-
       this.queueService.playerIsInQueue(this.currentUser.username).subscribe((result) => {
         this.isInQueue = result;
       }, () => this.isInQueue = false);
@@ -162,10 +153,9 @@ export class QueueComponent implements OnInit, OnDestroy {
         played,
         this.currentUser.gamesWon
       ).subscribe();
-      window.setTimeout(() => {
-        this.router.navigate(['/game']);
-      }, 3500);
-      this.gameService.createNewGame(this.toCreate).subscribe();
+      this.gameService.createNewGame(this.toCreate).subscribe(() => {
+
+      }, () => {}, () => { this.router.navigate(['/game']); });
       this.removeQueue(this.currentUser);
       this.toastService.success('Game found!');
       const audio = new Audio('../../../../assets/game-found.mp3');

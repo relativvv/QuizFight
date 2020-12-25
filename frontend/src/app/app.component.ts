@@ -65,7 +65,7 @@ export class AppComponent implements AfterViewInit {
         this.imageSrc = e.toString();
       });
 
-    }, 3000);
+    }, 20000);
     return this.money;
   }
 

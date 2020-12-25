@@ -59,7 +59,7 @@
         color="accent">{{ answerThree | translateHtmlCodes }}
         <mat-chip-list *ngIf="this.currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
           <mat-chip color="accent" *ngIf="game.p1Locked === answerThree">{{game.p1.username}}</mat-chip>
-          <mat-chip colo-r="accent" *ngIf="game.p2Locked === answerThree">{{game.p2.username}}</mat-chip>
+          <mat-chip color="accent" *ngIf="game.p2Locked === answerThree">{{game.p2.username}}</mat-chip>
         </mat-chip-list>
       </button>
       <button
