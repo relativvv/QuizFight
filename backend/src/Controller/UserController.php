@@ -210,18 +210,31 @@ class UserController extends AbstractController
 
     /**
      * @param Request $request
+     * @return JsonResponse
      */
     public function sendResetPasswordMail(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
-//        $arr = json_decode($request->getContent(), true);
-//        $email = $arr['email'];
-//        $url = $arr['url'];
-//        $token = $this->generateRandomToken(25);
-//        if(!$this->isUserExistingByEmail($email)) {
-//            throw new UserException("User doesn't exist");
-//        }
-//        mail($email, "QuizFight - Password reset", $url . "/resetpassword?token=" . $token);
-//        return new JsonResponse($arr);
+        $arr = json_decode($request->getContent(), true);
+        $email = $arr['email'];
+        $token = $this->generateRandomToken(25);
+        if(!$this->isUserExistingByEmail($email)) {
+            throw new UserException("User doesn't exist");
+        }
+
+        $user = $this->repository->getUserByEMail($arr['email']);
+        $this->repository->setToken($user, $token);
+
+        mail($email, "QuizFight - Password reset", "Hellooooo, so you rascal forgot your password? \nHere you have a code, you need it to reset your password!\nI wouldn't give this code to anyone if I were you. \n Your code: " . $token . " \n Greetings  ~QuizFight Team");
+        return new JsonResponse($arr);
+    }
+
+    public function resetPassword(Request $request): JsonResponse {
+        $this->denyUnlessInternal($request);
+        $arr = json_decode($request->getContent(), true);
+        $user = $this->repository->getUserByResetToken($arr['token']);
+        $this->repository->setToken($user, null);
+        $this->repository->changePassword($user->getUsername(), password_hash($arr['password'], PASSWORD_BCRYPT));
+        return new JsonResponse('password changed');
     }
 
     private function generateRandomToken(int $length): string {

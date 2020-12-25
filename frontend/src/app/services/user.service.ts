@@ -118,8 +118,12 @@ export class UserService {
     );
   }
 
-  public sendResetMail(url: string, email: string): Observable<any> {
-    return this.http.post<any>(this.backend + '/user/resetpassword', {url, email});
+  public sendResetMail(email: string): Observable<any> {
+    return this.http.post<any>(this.backend + '/user/resetpassword', {email});
+  }
+
+  public resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post<any>(this.backend + '/user/passwordreset', {token, password});
   }
 
   public getAllUser(user: User): Observable<any> {

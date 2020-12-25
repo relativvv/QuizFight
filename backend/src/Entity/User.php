@@ -33,9 +33,15 @@ class User
     private $password;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $resetToken;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $image;
+
 
     /**
      * @ORM\Column(type="integer")
@@ -72,7 +78,7 @@ class User
      */
     private $game;
 
-    public function __construct(string $username, string $email, string $password, int $allTimeCorrect = 0, int $gamesPlayed = 0, int $gamesWon = 0, int $money = 0, bool $isAdmin = false, string $image = null, bool $queue = null, int $id = null)
+    public function __construct(string $username, string $email, string $password, string $resetToken = null, int $allTimeCorrect = 0, int $gamesPlayed = 0, int $gamesWon = 0, int $money = 0, bool $isAdmin = false, string $image = null, bool $queue = null, int $id = null)
     {
         if($id !== null) {
             $this->id = $id;
@@ -87,6 +93,7 @@ class User
         $this->gamesWon = $gamesWon;
         $this->gamesPlayed = $gamesPlayed;
         $this->allTimeCorrect = $allTimeCorrect;
+        $this->resetToken = $resetToken;
     }
 
     public function getId(): ?int
@@ -157,6 +164,16 @@ class User
     public function addMoney(int $money): self
     {
         $this->money = $this->getMoney() + $money;
+
+        return $this;
+    }
+
+    public function getResetToken(): ?string {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(string $resetToken): self {
+        $this->resetToken = $resetToken;
 
         return $this;
     }

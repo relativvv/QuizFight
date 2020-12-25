@@ -36,6 +36,10 @@ class UserRepository extends ServiceEntityRepository
         return $this->findOneBy(["email" => $email]);
     }
 
+    public function getUserByResetToken(string $token): ?User {
+        return $this->findOneBy(["resetToken" => $token]);
+    }
+
     public function isUserInQueue(string $username): bool {
         return $this->getUserByUsername($username)->isInQueue();
     }
@@ -76,6 +80,13 @@ class UserRepository extends ServiceEntityRepository
     /* -------------------------- UPDATE -------------------------- */
     public function changeImage(User $user, $image): void {
         $user->setImage($image);
+        try {
+            $this->getEntityManager()->flush();
+        } catch (OptimisticLockException | ORMException $e) { throw new UserException("Image change failed!"); }
+    }
+
+    public function setToken(User $user, $token): void {
+        $user->setResetToken($token);
         try {
             $this->getEntityManager()->flush();
         } catch (OptimisticLockException | ORMException $e) { throw new UserException("Image change failed!"); }

@@ -8,6 +8,11 @@ api_login_user:
   controller: App\Controller\UserController::loginUser
   methods: POST
 
+api_user_password_reset:
+  path: /user/passwordreset
+  controller: App\Controller\UserController::resetPassword
+  methods: POST
+
 api_change_password:
   path: /user/changepassword
   controller: App\Controller\UserController::changePassword
