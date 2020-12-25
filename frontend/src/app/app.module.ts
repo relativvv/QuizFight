@@ -43,6 +43,8 @@ import {A11yModule} from '@angular/cdk/a11y';
 import {MatChipsModule} from '@angular/material/chips';
 import { UserDetailsEditModalComponent } from './components/modals/user-details-edit-modal/user-details-edit-modal.component';
 import { ChangePasswordComponent } from './components/modals/change-password/change-password.component';
+import { RequestPasswordResetComponent } from './components/forgot-password/request-password-reset/request-password-reset.component';
+import { ResetPasswordComponent } from './components/forgot-password/reset-password/reset-password.component';
 
 const routes: Routes = [
   {
@@ -72,6 +74,14 @@ const routes: Routes = [
   {
     path: 'game',
     component: IngameComponent
+  },
+  {
+    path: 'forgotpassword',
+    component: RequestPasswordResetComponent
+  },
+  {
+    path: 'resetpassword',
+    component: ResetPasswordComponent
   }
 ];
 
@@ -94,6 +104,8 @@ const routes: Routes = [
     IngameComponent,
     UserDetailsEditModalComponent,
     ChangePasswordComponent,
+    RequestPasswordResetComponent,
+    ResetPasswordComponent,
   ],
   imports: [
     ToastrModule.forRoot(),
