@@ -18,4 +18,5 @@ export interface Game {
   p1HP: number;
   p2HP: number;
   currentDifficulty: string | null;
+  type: string | null;
 }

@@ -98,7 +98,7 @@ class GameController extends AbstractController
         $data = json_decode($request->getContent(), true);
         if($this->validatePlayer($data['username'], $data['password'])) {
             $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data['username']));
-            return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game));
+            return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game, null));
         }
         throw new GameException('Unknown error');
     }
@@ -117,7 +117,11 @@ class GameController extends AbstractController
             } else {
                 $this->gameRepository->updateGame($game);
             }
-            return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game));
+            if(isset($data['type'])) {
+                return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game, $data['type']));
+            } else {
+                return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game));
+            }
         }
         throw new GameException('Unknown error');
     }

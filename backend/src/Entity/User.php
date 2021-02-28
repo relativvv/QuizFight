@@ -74,7 +74,7 @@ class User
     private $isAdmin;
 
     /**
-     * @ORM\OneToOne(targetEntity=Game::class, mappedBy="p1", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Game::class, mappedBy="p1", cascade={"remove"})
      */
     private $game;
 

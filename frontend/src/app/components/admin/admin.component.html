@@ -1,7 +1,7 @@
 <main *ngIf="isAdmin; else noPermission">
   <h1 style="font-size: 4em; margin-bottom: 100px;"><b>Administration</b></h1>
   <mat-tab-group mat-align-tabs="start">
-    <mat-tab label="Users">
+    <mat-tab label="User">
       <mat-spinner style="margin: 60px;" *ngIf="!users"></mat-spinner>
       <table *ngIf="this.users != null" class="table table-dark table-striped call-table">
         <thead>

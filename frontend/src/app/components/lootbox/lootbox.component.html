@@ -1,0 +1,15 @@
+<main>
+  <div id="items" *ngIf="hitsNeeded <= 0">
+    <app-item-card class="fade-in zoom-in" *ngFor="let item of items"
+    [imageSrc]="item.imageSrc"
+    [imageAlt]="item.imageAlt"
+    [weight]="item.weight"
+    [damage]="item.damage"
+    [statusType]="item.statusType"
+    [health]="item.health"
+    [rarity]="item.rarity"></app-item-card>
+  </div>
+  <div>
+    <img #lootbox (click)="hitLootbox();" src="assets/treasure.png"  alt="Lootbox image" />
+  </div>
+</main>
