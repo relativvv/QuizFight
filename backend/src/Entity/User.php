@@ -35,7 +35,7 @@ class User
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $resetToken;
+    private ?string $resetToken;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -172,7 +172,7 @@ class User
         return $this->resetToken;
     }
 
-    public function setResetToken(string $resetToken): self {
+    public function setResetToken(?string $resetToken): self {
         $this->resetToken = $resetToken;
 
         return $this;

@@ -5,8 +5,8 @@ import {User} from '../../../entity/User';
 import {Game} from '../../../entity/Game';
 import {Title} from '@angular/platform-browser';
 import {ToastrService} from 'ngx-toastr';
-import {catchError, delay, map, repeat, retry, skip, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {EMPTY, iif, interval, NEVER, Observable, of, timer} from 'rxjs';
+import {switchMap, takeUntil} from 'rxjs/operators';
+import {EMPTY, interval, NEVER, Observable, of, timer} from 'rxjs';
 
 @Component({
   selector: 'app-ingame',
@@ -61,7 +61,6 @@ export class IngameComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.leaveGame();
     window.location.href = '/';
-    alert('Please stop googling!');
   }
 
   public runGame(): void {
@@ -75,13 +74,12 @@ export class IngameComponent implements OnInit, OnDestroy {
           takeUntil(timer(10900))
         );
       }),
-      switchMap((n) => {
+      switchMap(() => {
         if (this.timer > 0) {
           this.timer--;
         }
         if (this.timer <= 0) {
           this.timer--;
-          this.currentMode = 'questionResult';
           const newInt = this.questionNumber + 1;
           if (this.game.p1.username === this.currentUser.username) {
             this.game.p1Status = 'q' + newInt;
@@ -93,8 +91,9 @@ export class IngameComponent implements OnInit, OnDestroy {
         }
         return NEVER;
       }),
-    switchMap((a) => {
-        this.game = a;
+    switchMap((game: Game) => {
+        this.game = game;
+        this.currentMode = 'questionResult';
         this.waitingForOpponent = true;
         return this.gameService.getFullGameByPlayer();
       }),
@@ -107,10 +106,8 @@ export class IngameComponent implements OnInit, OnDestroy {
               this.game = fullGame;
               this.correctAnswer = fullGame.correctAnswer;
 
-              if (this.game.p1Status === this.game.p2Status) {
-                this.waitingForOpponent = false;
-                console.log(fullGame);
-                if (this.game.p1.username === this.currentUser.username) {
+              this.waitingForOpponent = false;
+              if (this.game.p1.username === this.currentUser.username) {
                   if (this.game.p1Locked) {
                     if (this.game.p1Locked === fullGame.correctAnswer) {
                       this.game.p1Correct++;
@@ -139,24 +136,14 @@ export class IngameComponent implements OnInit, OnDestroy {
                     }
                   }
                 }
-              }
             } else {
               this.waitingForOpponent = false;
               return NEVER;
             }
         return this.updateGameObject();
       }),
-      switchMap((sd) => {
-        if (sd.type === 'p1' || sd.username === this.currentUser.username) {
-          return this.gameService.updateGameObject(this.game, 'p1');
-        } else if (sd.type === 'p2' || sd.username === this.currentUser.username) {
-          return this.gameService.updateGameObject(this.game, 'p2');
-        }
-
-        return this.updateGameObject();
-      }),
-      switchMap((g2) => {
-        if (g2.type === 'p1') {
+      switchMap((obj) => {
+        if (obj.type === 'p1' || this.currentUser.username === obj.username) {
           return this.userService.updateUser(
             this.game.p1.username,
             this.game.p1.email,
@@ -165,7 +152,7 @@ export class IngameComponent implements OnInit, OnDestroy {
             this.game.p1.gamesPlayed,
             this.game.p1.gamesWon
           );
-        } else if (g2.type === 'p2') {
+        } else if (obj.type === 'p2' || this.currentUser.username === obj.username) {
           return this.userService.updateUser(
             this.game.p2.username,
             this.game.p2.email,
@@ -175,14 +162,17 @@ export class IngameComponent implements OnInit, OnDestroy {
             this.game.p2.gamesWon
           );
         }
-        return EMPTY;
+        return NEVER;
       }),
-      switchMap((fds) => {
+      switchMap(() => {
+        return this.updateGameObject();
+      }),
+      switchMap(() => {
         return interval(120).pipe(
           takeUntil(timer(1410))
         );
       }),
-      switchMap((c) => {
+      switchMap(() => {
         if (this.timer < 132) {
           this.waitingForOpponent = false;
           this.timer++;
@@ -199,22 +189,10 @@ export class IngameComponent implements OnInit, OnDestroy {
         this.game.p1Correct = game.p1Correct;
         this.game.p2Correct = game.p2Correct;
         return interval(120).pipe(
-          takeUntil(timer(4910))
+          takeUntil(timer(14810))
         );
       }),
       switchMap(() => {
-        this.timer++;
-        if (this.timer === 50) {
-          return this.updateQuestion(false);
-        }
-        return NEVER;
-      }),
-      switchMap((withQ) => {
-        return interval(120).pipe(
-          takeUntil(timer(9900))
-        );
-      }),
-      switchMap((kjlo) => {
         this.timer++;
         if (this.timer === 95) {
           document.getElementsByClassName('question')[0].classList.add('drop-out');
@@ -230,10 +208,13 @@ export class IngameComponent implements OnInit, OnDestroy {
           this.game.p2Locked = null;
           this.resetAnswers();
           this.questionString = 'Waiting for question...';
-          return this.gameService.getGameByPlayer();
+          return this.updateQuestion(false);
         }
         return NEVER;
       }),
+    switchMap(() => {
+      return this.gameService.getGameByPlayer();
+    }),
     switchMap((game) => {
         this.game = game;
         if (game.p1HP > 0 && game.p2HP > 0) {
