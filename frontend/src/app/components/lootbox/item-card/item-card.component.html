@@ -3,7 +3,13 @@
           [class.rare]="rarity === 'rare'"
           [class.superRare]="rarity === 'superRare'"
           [class.epic]="rarity === 'epic'"
-          [class.legendary]="rarity === 'legendary'">
+          [class.legendary]="rarity === 'legendary'"
+          [class.fire]="statusType === 'fire'"
+          [class.water]="statusType === 'water'"
+          [class.earth]="statusType === 'earth'"
+          [class.dragon]="statusType === 'dragon'"
+          [class.electric]="statusType === 'electric'"
+          [class.air]="statusType === 'air'">
   <img mat-card-image [src]="imageSrc" [alt]="imageAlt">
   <mat-card-content>
     <div id="stats">
