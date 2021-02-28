@@ -74,10 +74,14 @@ export class UserDetailsComponent implements OnInit {
   }
 
   public submitImage(): void {
-    this.userService.uploadProfilePicture(this.selectedFileBase64).subscribe();
-    this.imageSrc = this.selectedFileBase64;
-    this.toastService.success('Profile picture changed!');
-    (document.getElementById('picture') as HTMLInputElement).value = null;
+    if (this.selectedFile) {
+      this.userService.uploadProfilePicture(this.selectedFileBase64).subscribe();
+      this.imageSrc = this.selectedFileBase64;
+      this.toastService.success('Profile picture changed!');
+      (document.getElementById('picture') as HTMLInputElement).value = null;
+    } else {
+      this.toastService.error('No file selected!!');
+    }
   }
 
   public deleteUser(): void {

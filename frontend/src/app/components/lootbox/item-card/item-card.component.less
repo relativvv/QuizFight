@@ -1,0 +1,99 @@
+.item-card {
+  max-width: 400px;
+  transition: 0.2s;
+  background-image: url("../../../../assets/no-permission.gif");
+  img {
+    background-size: cover;
+    width: 200px;
+    height: 200px;
+  }
+}
+
+.item-card:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+#stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  .data {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  mat-icon {
+    display: inline-flex;
+    vertical-align: top;
+    margin-right: 5px;
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+}
+
+.common {
+  box-shadow: 0 0 12px 5px #fff,
+}
+
+.rare {
+  box-shadow: 0 0 18px 10px #39d240,
+}
+
+.superRare {
+  box-shadow:
+    0 0 15px 3px #fff,
+    0 0 35px 20px #3064b3;
+}
+
+.epic {
+  position: relative;
+  animation-name: epic-glow;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+}
+
+.legendary {
+  position: relative;
+  animation-name: legendary-glow;
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+
+}
+
+@keyframes epic-glow {
+  0%   {
+    box-shadow:
+      0 0 15px 5px #fff,
+      0 0 50px 15px #c540dd;
+  }
+  50% {
+    box-shadow:
+      0 0 20px 3px #fff,
+      0 0 65px 30px #c540dd;
+  }
+  100%   {
+    box-shadow:
+      0 0 15px 5px #fff,
+      0 0 50px 15px #c540dd;
+  }
+}
+
+@keyframes legendary-glow {
+  0%   {
+    box-shadow:
+    0 0 10px 3px #fff,
+    0 0 50px 30px #DAA520;
+  }
+  50% {
+    box-shadow:
+      0 0 20px 2px #fff,
+      0 0 65px 40px #DAA520;
+  }
+  100%   {
+    box-shadow:
+      0 0 10px 3px #fff,
+      0 0 50px 30px #DAA520;
+  }
+}
+

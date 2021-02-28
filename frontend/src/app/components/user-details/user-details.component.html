@@ -38,7 +38,7 @@
             <button (click)="openPasswordChangeModal(this.currentUser)" mat-fab style="background-color: mediumpurple" aria-label="change pw">
               <mat-icon>lock</mat-icon>
             </button><br /><br />
-            <button mat-fab color="warn" aria-label="delete user">
+            <button (click)="deleteUser()" mat-fab color="warn" aria-label="delete user">
               <mat-icon>delete</mat-icon>
             </button><br />
           </div>

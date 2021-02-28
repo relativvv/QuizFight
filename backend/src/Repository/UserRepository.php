@@ -135,6 +135,7 @@ class UserRepository extends ServiceEntityRepository
             if($user) {
                 try {
                     $user->addMoney($money);
+                    $this->getEntityManager()->persist($user);
                     $this->getEntityManager()->flush();
                 } catch (OptimisticLockException | ORMException $e) {
                 }

@@ -21,7 +21,7 @@
       <button id="finished-flag" [class.stepper]="this.currentMode === 'finished'" mat-fab><mat-icon>flag</mat-icon></button>
     </div>
     <mat-progress-bar *ngIf="!loading && this.currentMode !== 'finished'" class="timer-bar" mode="determinate" color="warn" [value]="timer"></mat-progress-bar>
-    <mat-card class="question" *ngIf="!this.loading && game && this.currentMode !== 'finished'">{{ questionString | translateHtmlCodes }}<span class="money" *ngIf="money"> {{money}} <mat-icon>attach_money</mat-icon></span></mat-card>
+    <mat-card class="question" *ngIf="!this.loading && game && questionString && this.currentMode !== 'finished'">{{ questionString | translateHtmlCodes }}<span class="money" *ngIf="money"> {{money}} <mat-icon>attach_money</mat-icon></span></mat-card>
     <div *ngIf="!loading && this.game && this.currentMode !== 'finished'" class="question-answers">
       <button
         (click)="lockAnswer('one')"
@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <div class="finished" *ngIf="this.currentMode === 'test' && !loading">
+    <div class="finished" *ngIf="this.currentMode === 'finished' && !loading">
       <div class="player-info">
         <img [src]="game.p1.username === currentUser.username ? game.p1.image : game.p2.image" *ngIf="game" alt="opponent profile picture" [draggable]="false">
         <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: left;" mode="determinate" color="primary" [value]="game.p1.username === currentUser.username ? game.p1HP : game.p2HP"></mat-progress-bar>
@@ -85,7 +85,7 @@
       <span *ngIf="game" class="status">{{ game.p1.username === currentUser.username ? game.p1Correct : game.p2Correct }} - {{ game.p1.username === opponent.username ? game.p1Correct : game.p2Correct}}</span>
       <div class="player-info">
         <img [src]="game.p1.username === opponent.username ? game.p1.image : game.p2.image" *ngIf="opponent" alt="opponent profile picture" [draggable]="false">
-        <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: right;" mode="determinate" color="primary" [value]="game.p1.username=== opponent.username ? game.p1HP : game.p2HP"></mat-progress-bar>
+        <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: right;" mode="determinate" color="primary" [value]="game.p1.username === opponent.username ? game.p1HP : game.p2HP"></mat-progress-bar>
       </div>
     </div>
   </main>

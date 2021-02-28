@@ -7,7 +7,7 @@
       <mat-icon>shopping_basket</mat-icon>
     </button><br />
     <div *ngIf="this.userService.isLoggedIn()">
-      <button disabled routerLink="lootbox" matTooltip="Lootbox" matTooltipPosition="left" mat-icon-button aria-label="Have a look at your Lootboxses">
+      <button routerLink="lootbox" matTooltip="Lootbox" matTooltipPosition="left" mat-icon-button aria-label="Have a look at your lootboxes">
         <mat-icon>business_center</mat-icon>
       </button><br />
     </div>
@@ -17,7 +17,7 @@
       </button><br />
     </div>
     <div *ngIf="this.userService.isLoggedIn() && isAdmin">
-      <button routerLink="/admin" class="admin-area" mat-icon-button aria-label="Admin area">
+      <button routerLink="/admin" class="admin-area" matTooltip="Administration" matTooltipPosition="left" mat-icon-button aria-label="Admin area">
         <mat-icon>font_download</mat-icon>
       </button>
     </div>

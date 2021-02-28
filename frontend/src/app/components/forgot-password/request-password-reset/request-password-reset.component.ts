@@ -3,8 +3,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UserService} from '../../../services/user.service';
 import {Title} from '@angular/platform-browser';
 import {ToastrService} from 'ngx-toastr';
-import {Router} from "@angular/router";
-import {finalize} from "rxjs/operators";
+import {Router} from '@angular/router';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'app-request-password-reset',

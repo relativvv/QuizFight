@@ -98,8 +98,8 @@ export class UserService {
     return this.http.get<number>(this.backend + '/user/getmoney?username=' + username);
   }
 
-  public addMoney(amount: number): Observable<number> {
-    return this.http.put<number>(this.backend + '/user/addmoney',
+  public addMoney(amount: number): Observable<User> {
+    return this.http.put<User>(this.backend + '/user/addmoney',
       { username: this.currentUserValue.username, password: this.currentUserValue.password, amount});
   }
 
@@ -139,5 +139,6 @@ export class UserService {
     this.currentUserObject.next(null);
     this.router.navigate(['/']);
     this.toastService.success('Successfully logged out!');
+    window.location.href = '/';
   }
 }

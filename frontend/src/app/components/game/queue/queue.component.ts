@@ -1,13 +1,14 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {UserService} from '../../../services/user.service';
 import {Title} from '@angular/platform-browser';
-import {finalize} from 'rxjs/operators';
+import {finalize, switchMap} from 'rxjs/operators';
 import {User} from '../../../entity/User';
 import {QueueService} from '../../../services/queue.service';
 import {NavigationEnd, Router} from '@angular/router';
 import {GameService} from '../../../services/game.service';
 import {Game} from '../../../entity/Game';
 import {ToastrService} from 'ngx-toastr';
+import {EMPTY} from 'rxjs';
 
 @Component({
   selector: 'app-queue',
@@ -94,16 +95,19 @@ export class QueueComponent implements OnInit, OnDestroy {
     let isReady = true;
     this.intV = setInterval(() => {
       if (isReady) {
-        isReady = false;
-        this.queueService.getAmountOfPlayersInQueue().subscribe((result) => {
-          this.playerInQueueAmount = result;
-          if (this.playerInQueueAmount >= 2) {
-            this.queueService.getQueuedPlayers().subscribe((solution) => {
-              this.queuedPlayers = solution;
-              this.startGame();
-            });
-            clearInterval(this.intV);
-          }
+        this.queueService.getAmountOfPlayersInQueue().pipe(
+          switchMap((result) => {
+            this.playerInQueueAmount = result;
+            if (this.playerInQueueAmount >= 2) {
+              clearInterval(this.intV);
+              return this.queueService.getQueuedPlayers();
+            }
+
+            return EMPTY;
+          })
+        ).subscribe((solution) => {
+                this.queuedPlayers = solution;
+                this.startGame();
         }, () => {}, () => { isReady = true; });
       }
     }, 1000);
@@ -121,7 +125,10 @@ export class QueueComponent implements OnInit, OnDestroy {
   public startGame(): void {
     this.getOpponent();
     if (this.opponent !== null) {
-      document.getElementById('waiting-container').remove();
+      if (document.getElementById('waiting-container') !== null) {
+        document.getElementById('waiting-container').remove();
+      }
+
       this.opponentFound = true;
 
       this.toCreate = {
@@ -140,10 +147,20 @@ export class QueueComponent implements OnInit, OnDestroy {
           correctAnswer: null,
           question: null,
           questionNumber: 1,
-          mode: 'ingame'
+          mode: 'ingame',
+          type: null
         };
 
       const played = this.currentUser.gamesPlayed + 1;
+
+      if (!this.isIngame) {
+        this.isIngame = true;
+        this.removeQueue(this.currentUser);
+        this.toastService.success('Game found!');
+        const audio = new Audio('../../../../assets/game-found.mp3');
+        audio.volume = 0.2;
+        audio.play();
+      }
 
       this.userService.updateUser(
         this.currentUser.username,
@@ -152,14 +169,11 @@ export class QueueComponent implements OnInit, OnDestroy {
         this.currentUser.allTimeCorrect,
         played,
         this.currentUser.gamesWon
-      ).subscribe();
-      this.gameService.createNewGame(this.toCreate).subscribe(() => {
-
-      }, () => {}, () => { this.router.navigate(['/game']); });
-      this.removeQueue(this.currentUser);
-      this.toastService.success('Game found!');
-      const audio = new Audio('../../../../assets/game-found.mp3');
-      audio.play();
+      ).pipe(
+        switchMap(() => {
+          return this.gameService.createNewGame(this.toCreate);
+        }),
+      ).subscribe(() => { this.router.navigate(['/game']); });
     } else {
       this.removeQueue(this.currentUser);
       window.location.href = '/';

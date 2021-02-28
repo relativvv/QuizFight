@@ -22,8 +22,6 @@ import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatBadgeModule} from '@angular/material/badge';
 import { NoPermissionComponent } from './components/misc/no-permission/no-permission.component';
-import { WaitingComponent } from './components/game/waiting/waiting.component';
-import { ResultComponent } from './components/game/result/result.component';
 import {HttpClientModule} from '@angular/common/http';
 import { UserDetailsComponent } from './components/user-details/user-details.component';
 import {MatTableModule} from '@angular/material/table';
@@ -45,6 +43,8 @@ import { UserDetailsEditModalComponent } from './components/modals/user-details-
 import { ChangePasswordComponent } from './components/modals/change-password/change-password.component';
 import { RequestPasswordResetComponent } from './components/forgot-password/request-password-reset/request-password-reset.component';
 import { ResetPasswordComponent } from './components/forgot-password/reset-password/reset-password.component';
+import { LootboxComponent } from './components/lootbox/lootbox.component';
+import { ItemCardComponent } from './components/lootbox/item-card/item-card.component';
 
 const routes: Routes = [
   {
@@ -82,6 +82,10 @@ const routes: Routes = [
   {
     path: 'resetpassword',
     component: ResetPasswordComponent
+  },
+  {
+    path: 'lootbox',
+    component: LootboxComponent
   }
 ];
 
@@ -93,8 +97,6 @@ const routes: Routes = [
     LoginComponent,
     RegisterComponent,
     NoPermissionComponent,
-    WaitingComponent,
-    ResultComponent,
     UserDetailsComponent,
     TranslateHtmlCodesPipe,
     BooleanAsString,
@@ -106,6 +108,8 @@ const routes: Routes = [
     ChangePasswordComponent,
     RequestPasswordResetComponent,
     ResetPasswordComponent,
+    LootboxComponent,
+    ItemCardComponent,
   ],
   imports: [
     ToastrModule.forRoot(),

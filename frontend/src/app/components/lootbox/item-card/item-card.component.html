@@ -1,0 +1,20 @@
+<mat-card class="item-card"
+          [class.common]="rarity === 'common'"
+          [class.rare]="rarity === 'rare'"
+          [class.superRare]="rarity === 'superRare'"
+          [class.epic]="rarity === 'epic'"
+          [class.legendary]="rarity === 'legendary'">
+  <img mat-card-image [src]="imageSrc" [alt]="imageAlt">
+  <mat-card-content>
+    <div id="stats">
+      <div id="left">
+        <mat-icon matTooltip="Health" matTooltipPosition="left">favorite</mat-icon> <span class="data">{{health}}</span><br/>
+        <mat-icon matTooltip="Damage" matTooltipPosition="left">flash_on</mat-icon> <span class="data">{{damage}}</span>
+      </div>
+      <div id="right">
+        <mat-icon matTooltip="Weight" matTooltipPosition="right">fitness_center</mat-icon> <span class="data">{{weight}}</span><br/>
+        <mat-icon matTooltip="Statustype" matTooltipPosition="right">build</mat-icon> <span class="data">{{statusType | titlecase}}</span>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

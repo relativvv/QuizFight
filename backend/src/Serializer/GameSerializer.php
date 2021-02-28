@@ -146,7 +146,7 @@ class GameSerializer {
         return $finalResponse;
     }
 
-    public function serializeWithoutCorrectAnswer(Game $game): array {
+    public function serializeWithoutCorrectAnswer(Game $game, ?String $type = null): array {
         $finalResponse = array();
 
         $finalResponse["id"] = $game->getId();
@@ -163,6 +163,9 @@ class GameSerializer {
         $finalResponse["p2Status"] = $game->getP2Status();
         $finalResponse["p1HP"] = $game->getP1HP();
         $finalResponse["p2HP"] = $game->getP2HP();
+        if(isset($type)) {
+            $finalResponse['type'] = $type;
+        }
 
         return $finalResponse;
     }

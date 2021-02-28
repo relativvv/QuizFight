@@ -72,11 +72,12 @@ class UserController extends AbstractController
         $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         $current = $this->repository->getUserByUsername($arr["username"]);
+
         if (!$this->isUserExistingByUsername($current->getUsername())) {
             throw new UserException("User doesn't exist!");
         }
 
-        if ($this->isUserExistingByEmail($arr['email'])) {
+        if (!$this->isUserExistingByEmail($arr['email'])) {
             throw new UserException("E-Mail address already registered!");
         }
 
@@ -288,10 +289,11 @@ class UserController extends AbstractController
 
     public function addPlayerToQueue(ValidatorInterface $validator, Request $request): JsonResponse {
         $arr = json_decode($request->getContent(), true);
-        if ($this->isUserExistingByUsername($arr["username"])) {
+        if ($this->repository->getUserByUsername($arr["username"])) {
             if($this->validatePlayer($arr["username"], $arr["password"])) {
                 $user = $this->repository->getUserByUsername($arr["username"]);
                 $this->repository->addToQueue($validator, $user);
+                return new JsonResponse($this->serializer->serializerUser($user));
             }
         }
         throw new UserException("User doesn't exist");
@@ -303,6 +305,7 @@ class UserController extends AbstractController
             if($this->validatePlayer($arr["username"], $arr["password"])) {
                 $user = $this->repository->getUserByUsername($arr["username"]);
                 $this->repository->removeFromQueue($user);
+                return new JsonResponse($this->serializer->serializerUser($user));
             }
         }
         throw new UserException("User doesn't exist");
@@ -378,7 +381,7 @@ class UserController extends AbstractController
     }
 
     private function denyUnlessInternal(Request $request) {
-        if($request->getHost() !== 'localhost') {
+        if($request->getHost() !== 'https://api.relativv.de') {
             throw new UserException('Permission denied!');
         }
     }
