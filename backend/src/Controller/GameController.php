@@ -59,35 +59,35 @@ class GameController extends AbstractController
 
     public function isIngame(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
-        $id = $request->get('id');
+        $id = $request->get("id");
         if($this->gameRepository->getGameByPlayer($this->userRepository->getUserById($id)) !== null) {
-            return new JsonResponse(['ingame' => true]);
+            return new JsonResponse(["ingame" => true]);
         }
-        return new JsonResponse(['ingame' => false]);
+        return new JsonResponse(["ingame" => false]);
     }
 
     public function createNewGame(ValidatorInterface $validator, Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $data = json_decode($request->getContent(), true);
-        if($this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data['validateUsername'])) !== null) {
-            return new JsonResponse($this->gameSerializer->serializeGame($this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data['validateUsername']))));
+        if($this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data["validateUsername"])) !== null) {
+            return new JsonResponse($this->gameSerializer->serializeGame($this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data["validateUsername"]))));
         }
 
-            if($this->validatePlayer($data['validateUsername'], $data['validatePassword'])) {
-                $game = $this->gameSerializer->deserializeGame($data['game']);
+            if($this->validatePlayer($data["validateUsername"], $data["validatePassword"])) {
+                $game = $this->gameSerializer->deserializeGame($data["game"]);
                 $this->updateQuestionOnGame($game);
                 $this->gameRepository->createGame($validator, $game);
-                return new JsonResponse($data['game']);
+                return new JsonResponse($data["game"]);
             }
 
-        throw new GameException('An error ocurred');
+        throw new GameException("An error ocurred");
     }
 
     public function getFullGame(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $data = json_decode($request->getContent(), true);
-        if($this->validatePlayer($data['username'], $data['password'])) {
-            $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data['username']));
+        if($this->validatePlayer($data["username"], $data["password"])) {
+            $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data["username"]));
             return new JsonResponse($this->gameSerializer->serializeGame($game));
         }
         throw new GameException('Unknown error');
@@ -96,20 +96,20 @@ class GameController extends AbstractController
     public function getGame(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $data = json_decode($request->getContent(), true);
-        if($this->validatePlayer($data['username'], $data['password'])) {
-            $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data['username']));
+        if($this->validatePlayer($data["username"], $data["password"])) {
+            $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data["username"]));
             return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game, null));
         }
-        throw new GameException('Unknown error');
+        throw new GameException("Unknown error");
     }
 
     public function updateGame(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $data = json_decode($request->getContent(), true);
-        if($this->validatePlayer($data['validateUsername'], $data['validatePassword'])) {
-            $game = $this->gameSerializer->deserializeGame($data['game']);
-            if(isset($data['type'])) {
-                if($data['type'] === 'p1') {
+        if($this->validatePlayer($data["validateUsername"], $data["validatePassword"])) {
+            $game = $this->gameSerializer->deserializeGame($data["game"]);
+            if(isset($data["type"])) {
+                if($data["type"] === "p1") {
                     $this->gameRepository->updateGameP1($game);
                 } else {
                     $this->gameRepository->updateGameP2($game);
@@ -117,21 +117,21 @@ class GameController extends AbstractController
             } else {
                 $this->gameRepository->updateGame($game);
             }
-            if(isset($data['type'])) {
-                return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game, $data['type']));
+            if(isset($data["type"])) {
+                return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game, $data["type"]));
             } else {
                 return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game));
             }
         }
-        throw new GameException('Unknown error');
+        throw new GameException("Unknown error");
     }
     
     public function deleteGame(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $data = json_decode($request->getContent(), true);
-        if($this->validatePlayer($data['validateUsername'], $data['validatePassword'])) {
-            if($this->gameRepository->getGameById($data['id'])) {
-                $this->gameRepository->deleteGame($data['id']);
+        if($this->validatePlayer($data["validateUsername"], $data["validatePassword"])) {
+            if($this->gameRepository->getGameById($data["id"])) {
+                $this->gameRepository->deleteGame($data["id"]);
             }
         }
     }
@@ -139,11 +139,11 @@ class GameController extends AbstractController
     public function updateQuestion(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $data = json_decode($request->getContent(), true);
-        if($this->validatePlayer($data['validateUsername'], $data['validatePassword'])) {
-            $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data['validateUsername']));
+        if($this->validatePlayer($data["validateUsername"], $data["validatePassword"])) {
+            $game = $this->gameRepository->getGameByPlayer($this->userRepository->getUserByUsername($data["validateUsername"]));
             $this->updateQuestionOnGame($game);
             $this->gameRepository->updateGame($game);
-            return new JsonResponse($this->gameSerializer->serializeWithoutCorrectAnswer($game));
+            return new JsonResponse();
         }
         throw new GameException("Question cannot be get");
     }
@@ -152,20 +152,20 @@ class GameController extends AbstractController
     private function updateQuestionOnGame(Game $game): void {
         try {
             $resp = $this->client->request(
-                'GET',
-                'https://opentdb.com/api.php?amount=1&type=multiple'
+                "GET",
+                "https://opentdb.com/api.php?amount=1&type=multiple"
             );
 
             $content = $resp->toArray();
-            $game->setQuestion($content['results'][0]['question']);
-            $game->setCorrectAnswer($content['results'][0]['correct_answer']);
+            $game->setQuestion($content["results"][0]["question"]);
+            $game->setCorrectAnswer($content["results"][0]["correct_answer"]);
                 $answers = [];
-                array_push($answers, $content['results'][0]['correct_answer']);
-                array_push($answers, $content['results'][0]['incorrect_answers'][0]);
-                array_push($answers, $content['results'][0]['incorrect_answers'][1]);
-                array_push($answers, $content['results'][0]['incorrect_answers'][2]);
+                array_push($answers, $content["results"][0]["correct_answer"]);
+                array_push($answers, $content["results"][0]["incorrect_answers"][0]);
+                array_push($answers, $content["results"][0]["incorrect_answers"][1]);
+                array_push($answers, $content["results"][0]["incorrect_answers"][2]);
             $game->setAnswers($answers);
-            $game->setCurrentDifficulty($content['results'][0]['difficulty']);
+            $game->setCurrentDifficulty($content["results"][0]["difficulty"]);
         } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface | DecodingExceptionInterface | TransportExceptionInterface | TransportExceptionInterface $e) {
         }
     }
@@ -193,7 +193,7 @@ class GameController extends AbstractController
         return false;
     }
 
-    public function  isUserExistingByEmail(string $email): bool
+    public function isUserExistingByEmail(string $email): bool
     {
         if ($this->userRepository->getUserByEmail($email) != null) {
             return true;
@@ -202,8 +202,8 @@ class GameController extends AbstractController
     }
 
     private function denyUnlessInternal(Request $request) {
-        if($request->getHost() !== 'localhost') {
-            throw new GameException('Permission denied!');
+        if($request->getHost() !== "localhost") {
+            throw new GameException("Permission denied!");
         }
     }
 }

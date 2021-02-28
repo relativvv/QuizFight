@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({name: 'booleanAsString'})
 
-export class BooleanAsString implements PipeTransform {
+export class BooleanAsStringPipe implements PipeTransform {
 
   transform(value: boolean): string {
     switch (value) {
