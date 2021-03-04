@@ -9,8 +9,6 @@ use App\Serializer\UserSerializer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
@@ -79,10 +77,8 @@ class UserController extends AbstractController
             throw new UserException("User doesn't exist!");
         }
 
-        if($current->getEmail() !== $arr["email"]) {
-            if($this->isUserExistingByEmail($arr["email"])) {
-                throw new UserException("This E-Mail address is already registered!");
-            }
+        if (!$this->isUserExistingByEmail($arr['email'])) {
+            throw new UserException("E-Mail address already registered!");
         }
 
         $this->repository->updateUser($arr["username"], $arr["email"], $arr["money"], $arr["allTimeCorrect"], $arr["gamesPlayed"], $arr["gamesWon"]);
@@ -91,7 +87,7 @@ class UserController extends AbstractController
 
     public function getRank(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
-        $id = $request->get("id");
+        $id = $request->get('id');
         $rank = -1;
         $user = $this->repository->getUserById($id);
         $allUser = $this->repository->getAllUsers();
@@ -150,7 +146,7 @@ class UserController extends AbstractController
 
         if($this->validatePlayer($arr["validateUsername"], $arr["validatePassword"])) {
             $this->repository->deleteUser($id);
-            return new JsonResponse("User deleted");
+            return new JsonResponse('User deleted');
         }
         return new JsonResponse("Action not permitted!");
     }
@@ -163,7 +159,7 @@ class UserController extends AbstractController
     public function getUserImage(Request $request): JsonResponse
     {
         $this->denyUnlessInternal($request);
-        $name = $request->get("username");
+        $name = $request->get('username');
 
         if (!$this->repository->getUserByUsername($name)) {
             throw new UserException("User doesn't exist!");
@@ -216,9 +212,8 @@ class UserController extends AbstractController
     /**
      * @param Request $request
      * @return JsonResponse
-     * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
      */
-    public function sendResetPasswordMail(Request $request, MailerInterface $mailer): JsonResponse {
+    public function sendResetPasswordMail(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         $email = $arr['email'];
@@ -230,28 +225,23 @@ class UserController extends AbstractController
         $user = $this->repository->getUserByEMail($arr['email']);
         $this->repository->setToken($user, $token);
 
-        $mail = (new Email())
-            ->from("info@relativv.de")
-            ->to($email)
-            ->subject("QuizFight - Password reset")
-            ->text("Hellooooo\n so you rascal forgot your passw-ord? \n\nHere you have a code, you need it to reset your password!\nI wouldn't give this code to anyone if I were you. \n\nYour code: " . $token . " \nYou can reset your password here: https://quiz.relativv.de/resetpassword \n\nGreetings ~QuizFight Team");
-        $mailer->send($mail);
+        mail($email, "QuizFight - Password reset", "Hellooooo, so you rascal forgot your password? \nHere you have a code, you need it to reset your password!\nI wouldn't give this code to anyone if I were you. \n Your code: " . $token . " \n Greetings  ~QuizFight Team");
         return new JsonResponse($arr);
     }
 
     public function resetPassword(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
-        $user = $this->repository->getUserByResetToken($arr["token"]);
+        $user = $this->repository->getUserByResetToken($arr['token']);
         $this->repository->setToken($user, null);
-        $this->repository->changePassword($user->getUsername(), password_hash($arr["password"], PASSWORD_BCRYPT));
-        return new JsonResponse("password changed");
+        $this->repository->changePassword($user->getUsername(), password_hash($arr['password'], PASSWORD_BCRYPT));
+        return new JsonResponse('password changed');
     }
 
     private function generateRandomToken(int $length): string {
-        $characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
-        $randomString = "";
+        $randomString = '';
         for ($i = 0; $i < $length; $i++) {
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
@@ -264,7 +254,7 @@ class UserController extends AbstractController
 
     public function getMoney(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
-        $name = $request->get("username");
+        $name = $request->get('username');
 
         if (!$this->repository->getUserByUsername($name)) {
             throw new UserException("User doesn't exist!");
@@ -284,7 +274,7 @@ class UserController extends AbstractController
 
     public function userIsInQueue(Request $request): JsonResponse {
         $this->denyUnlessInternal($request);
-        $name = $request->get("username");
+        $name = $request->get('username');
         return new JsonResponse($this->repository->isUserInQueue($name));
     }
 
@@ -329,7 +319,7 @@ class UserController extends AbstractController
     public function isUserAdmin(Request $request): JsonResponse
     {
         $this->denyUnlessInternal($request);
-        $id = $request->get("id");
+        $id = $request->get('id');
 
         if (!$this->repository->getUserById($id)) {
             throw new UserException("User doesn't exist!");
@@ -391,8 +381,8 @@ class UserController extends AbstractController
     }
 
     private function denyUnlessInternal(Request $request) {
-        if($request->getHost() !== "localhost") {
-            throw new UserException("Permission denied!");
+        if($request->getHost() !== 'https://api.relativv.de') {
+            throw new UserException('Permission denied!');
         }
     }
 }

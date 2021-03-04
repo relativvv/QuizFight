@@ -26,7 +26,6 @@ export class TranslateHtmlCodesPipe implements PipeTransform {
                 .split('&oacute;').join('ó')
                 .split('&ntilde;').join('ñ')
                 .split('&deg;').join('º')
-                .split('&cent;').join('¢')
                 .split('&apos;').join('\'');
   }
 }

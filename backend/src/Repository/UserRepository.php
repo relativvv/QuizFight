@@ -85,7 +85,7 @@ class UserRepository extends ServiceEntityRepository
         } catch (OptimisticLockException | ORMException $e) { throw new UserException("Image change failed!"); }
     }
 
-    public function setToken(User $user, $token = null): void {
+    public function setToken(User $user, $token): void {
         $user->setResetToken($token);
         try {
             $this->getEntityManager()->flush();

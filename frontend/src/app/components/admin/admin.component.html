@@ -21,7 +21,7 @@
         <tr style='text-align: center' *ngFor="let user of users.slice(adminStartIndex, adminEndIndex)">
           <td style="text-align: left">{{ user.username }}</td>
           <td style="text-align: left">{{ user.email }}</td>
-          <td style="text-align: left">{{ user.isAdmin | BooleanAsStringPipe }}</td>
+          <td style="text-align: left">{{ user.isAdmin | booleanAsString }}</td>
           <td style="text-align: left">{{ user.money }}$</td>
           <td style="text-align: left">{{ user.allTimeCorrect }}</td>
           <td style="text-align: left">{{ user.gamesPlayed }}</td>

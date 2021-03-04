@@ -164,7 +164,7 @@ class GameSerializer {
         $finalResponse["p1HP"] = $game->getP1HP();
         $finalResponse["p2HP"] = $game->getP2HP();
         if(isset($type)) {
-            $finalResponse["type"] = $type;
+            $finalResponse['type'] = $type;
         }
 
         return $finalResponse;
