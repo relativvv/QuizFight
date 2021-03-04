@@ -24,7 +24,6 @@ export class AdminComponent implements OnInit {
   loading = true;
   currentGames: Game[];
   @ViewChild('adminPaginator', {static: false}) adminPaginator: MatPaginator;
-
   public adminStartIndex;
   public adminEndIndex;
 

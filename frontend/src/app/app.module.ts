@@ -35,7 +35,7 @@ import { UserEditModalComponent } from './components/modals/user-edit-modal/user
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {ToastrModule} from 'ngx-toastr';
 import { IngameComponent } from './components/game/ingame/ingame.component';
-import {BooleanAsStringPipe} from '../../pipes/booleanAsString.pipe';
+import {BooleanAsString} from '../../pipes/booleanAsString';
 import {MatStepperModule} from '@angular/material/stepper';
 import {A11yModule} from '@angular/cdk/a11y';
 import {MatChipsModule} from '@angular/material/chips';
@@ -99,7 +99,7 @@ const routes: Routes = [
     NoPermissionComponent,
     UserDetailsComponent,
     TranslateHtmlCodesPipe,
-    BooleanAsStringPipe,
+    BooleanAsString,
     QueueComponent,
     AdminComponent,
     UserEditModalComponent,

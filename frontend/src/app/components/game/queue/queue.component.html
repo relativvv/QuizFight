@@ -18,3 +18,8 @@
     <img id="opponent" class="animation-left" [src]="opponent.image" alt="opponents profile picture">
   </div>
 </main>
+
+<ng-template #notInQueue>
+  <h1 *ngIf="!isInQueue" style="margin-top: 100px;">You are not in a Queue!</h1>
+  <img *ngIf="!isInQueue" style="width: 100%; height: 100%" src="../../../../assets/not-in-queue.gif">
+</ng-template>
