@@ -1,25 +1,28 @@
 <main *ngIf="!loading">
-  <button class="go-back" (click)="goBack()" mat-icon-button aria-label="Go Back">
-    <mat-icon>keyboard_backspace</mat-icon>
-  </button>
-  <div *ngIf="isInQueue && !isIngame; else notInQueue" id="waiting-container">
-    <h1 class="show-image">Searching for opponent..</h1><br /><br />
-    <img id="you" class="show-image" [src]="imageSrc" alt="your profile picture">
-    <div id="connecting">
-      <mat-icon class="step-three">fiber_manual_record</mat-icon><br /><br /><br />
-      <mat-icon class="step-two">fiber_manual_record</mat-icon><br />
-      <mat-icon class="step-one">fiber_manual_record</mat-icon>
+    <button class="go-back" (click)="goBack()" mat-icon-button aria-label="Go Back">
+      <mat-icon>keyboard_backspace</mat-icon>
+    </button>
+  <div *ngIf="isConnection; else noConnection">
+    <div id="waiting-container" *ngIf="!gameFound">
+      <h1 class="show-image">Searching for opponent..</h1><br /><br />
+      <img id="you" class="show-image" [src]="imageSrc" alt="your profile picture">
+      <div id="connecting">
+        <mat-icon class="step-three">fiber_manual_record</mat-icon><br /><br /><br />
+        <mat-icon class="step-two">fiber_manual_record</mat-icon><br />
+        <mat-icon class="step-one">fiber_manual_record</mat-icon>
+      </div>
+    </div>
+
+    <div class='opponent-found' *ngIf="gameFound && opponent">
+      <h2 style="font-size: 2em;"><span style="margin-right: 15px;">{{currentUser.username}}</span> VS <span style="margin-left: 15px;">{{opponent.username}}</span></h2><br />
+      <img id="yours" class="animation-right" [src]="imageSrc" alt="your profile picture">
+      <img id="opponent" class="animation-left" [src]="opponent.image" alt="opponents profile picture">
     </div>
   </div>
 
-  <div class='opponent-found' *ngIf="opponentFound && this.opponent">
-    <h2 style="font-size: 2em;"><span style="margin-right: 15px;">{{currentUser.username}}</span> VS <span style="margin-left: 15px;">{{opponent.username}}</span></h2><br />
-    <img id="yours" class="animation-right" [src]="imageSrc" alt="your profile picture">
-    <img id="opponent" class="animation-left" [src]="opponent.image" alt="opponents profile picture">
-  </div>
+  <ng-template #noConnection>
+    <h1 style="margin-top: 100px;">Sorry we could not connect to the Queue, please try again later!</h1>
+    <img style="width: 100%; height: 100%" src="../../../../assets/not-in-queue.gif">
+  </ng-template>
 </main>
 
-<ng-template #notInQueue>
-  <h1 *ngIf="!isInQueue" style="margin-top: 100px;">You are not in a Queue!</h1>
-  <img *ngIf="!isInQueue" style="width: 100%; height: 100%" src="../../../../assets/not-in-queue.gif">
-</ng-template>

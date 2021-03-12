@@ -51,8 +51,7 @@ export class RegisterComponent implements OnInit {
           allTimeCorrect: 0,
           gamesPlayed: 0,
           gamesWon: 0,
-          resetToken: null,
-          queue: false
+          resetToken: null
         };
 
         this.loading = true;

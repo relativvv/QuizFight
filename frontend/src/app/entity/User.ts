@@ -5,10 +5,9 @@ export interface User {
   password: string;
   isAdmin: boolean;
   image?: string | null;
-  queue?: any | null;
   money: number;
   allTimeCorrect: number;
   gamesPlayed: number;
   gamesWon: number;
-  resetToken: string | null
+  resetToken: string | null;
 }

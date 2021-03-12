@@ -1,14 +1,13 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {UserService} from '../../../services/user.service';
 import {Title} from '@angular/platform-browser';
-import {finalize, switchMap} from 'rxjs/operators';
+import {finalize, switchMap, timeout} from 'rxjs/operators';
 import {User} from '../../../entity/User';
-import {QueueService} from '../../../services/queue.service';
 import {NavigationEnd, Router} from '@angular/router';
 import {GameService} from '../../../services/game.service';
-import {Game} from '../../../entity/Game';
 import {ToastrService} from 'ngx-toastr';
-import {EMPTY} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {Game} from '../../../entity/Game';
 
 @Component({
   selector: 'app-queue',
@@ -20,7 +19,6 @@ export class QueueComponent implements OnInit, OnDestroy {
   constructor(
    private readonly userService: UserService,
    private readonly titleService: Title,
-   public readonly queueService: QueueService,
    public readonly router: Router,
    private readonly gameService: GameService,
    private readonly toastService: ToastrService
@@ -30,21 +28,19 @@ export class QueueComponent implements OnInit, OnDestroy {
   currentUser: User;
   opponent: User;
   loading: boolean;
-  isInQueue = true;
-  playerInQueueAmount: number;
-  queuedPlayers: User[];
-  opponentFound = false;
-  toCreate: Game;
-  isIngame = false;
+  gameFound: boolean;
+  socket: any;
+  isConnection = true;
+  game: Game;
 
-  intV: any;
-  intV2: any;
+  errorSounds = ['../../../../assets/error-1.mp3', '../../../../assets/error-2.mp3'];
 
   ngOnInit(): void {
     this.titleService.setTitle('QuizFight - Queue');
     this.currentUser = this.userService.currentUserValue;
-    this.inQueue();
-    this.getQueueAmount();
+
+    this.checkIfQueueSocketIsOpen();
+
     if (this.currentUser != null) {
       this.loading = true;
       this.userService.getUserImage(this.currentUser.username).pipe(
@@ -55,129 +51,133 @@ export class QueueComponent implements OnInit, OnDestroy {
     }
     this.router.events.subscribe((val) => {
       if (val instanceof NavigationEnd) {
-        this.removeQueue(this.currentUser);
+        this.removeQueue();
       }
     });
+
+    this.socket = new WebSocket(environment.queueSocket);
+    this.socket.onopen = () => {
+      this.socket.send(
+        JSON.stringify({
+          type: 'joined',
+          username: this.currentUser.username
+        })
+      );
+    };
+
+    this.socket.onError = () => {
+      this.toastService.error('Connection to the queue failed!');
+
+      const audio = new Audio(this.errorSounds[Math.floor(Math.random() * this.errorSounds.length)]);
+      audio.volume = 0.15;
+      audio.play();
+    };
+
+    this.socket.onmessage = (e) => {
+      const json = JSON.parse(e.data);
+      switch (json.type) {
+        case 'gameFound':
+          this.socket.send(
+            JSON.stringify({
+              type: 'readyToCreate',
+            })
+          );
+          break;
+        case 'initiateCreation':
+          if (json.p1 && json.p2) {
+            const game = {
+              p1: json.p1,
+              p2: json.p2
+            };
+            this.getOpponent(json.p1, json.p2);
+            this.gameFound = true;
+
+            this.toastService.success('Game found!');
+            const audio = new Audio('../../../../assets/game-found.mp3');
+            audio.volume = 0.2;
+            audio.play();
+
+            if (this.currentUser.username === json.p1) {
+
+              setTimeout(() => {
+                this.gameService.createNewGame(game).pipe(
+                  switchMap((rs) => {
+                    this.game = rs;
+
+                    this.socket.send(
+                      JSON.stringify({
+                        type: 'redirectUsers',
+                      })
+                    );
+                    return this.gameService.startGameSocket(rs.port).pipe(
+                      timeout(1000000)
+                    );
+                  })
+                ).subscribe(() => {
+                });
+              }, 2000);
+
+            }
+          }
+          break;
+        case 'redirect':
+          setTimeout(() => {
+            this.router.navigate(['/game']);
+            this.socket.close();
+          }, 2000);
+          break;
+      }
+    };
   }
 
   @HostListener('window:unload', [ '$event' ])
   unloadHandler(): void {
-    this.removeQueue(this.currentUser);
+    this.removeQueue();
   }
 
   ngOnDestroy(): void {
-    this.removeQueue(this.currentUser);
+    this.removeQueue();
   }
 
-  public removeQueue(user: User): void {
-    if (this.isInQueue) {
-      this.queueService.removeFromQueue(user.username, user.password).subscribe();
-    }
-    clearInterval(this.intV);
-    clearInterval(this.intV2);
+  removeQueue(): void {
+    this.socket.close();
   }
 
-  public goBack(): void {
+  goBack(): void {
     this.toastService.success('You left the queue');
-    this.removeQueue(this.currentUser);
+    this.removeQueue();
     window.location.href = '/';
   }
 
-  public inQueue(): void {
-    this.intV2 = window.setInterval(() => {
-      this.queueService.playerIsInQueue(this.currentUser.username).subscribe((result) => {
-        this.isInQueue = result;
-      }, () => this.isInQueue = false);
-    }, 1000);
+  private getOpponent(p1Name: string, p2Name: string): void {
+    if (p1Name === this.currentUser.username) {
+      this.userService.getUserByUserName(p2Name).subscribe((result) => {
+        this.opponent = result;
+      });
+    } else {
+      this.userService.getUserByUserName(p1Name).subscribe((result) => {
+        this.opponent = result;
+      });
+    }
   }
 
-  public getQueueAmount(): void {
-    let isReady = true;
-    this.intV = setInterval(() => {
-      if (isReady) {
-        this.queueService.getAmountOfPlayersInQueue().pipe(
-          switchMap((result) => {
-            this.playerInQueueAmount = result;
-            if (this.playerInQueueAmount >= 2) {
-              clearInterval(this.intV);
-              return this.queueService.getQueuedPlayers();
-            }
+  private checkIfQueueSocketIsOpen(): void {
+    const endInt = setInterval(() => {
+      if (this.gameFound === false) {
+        if (this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
+          this.toastService.error('Connection to the queue failed!');
 
-            return EMPTY;
-          })
-        ).subscribe((solution) => {
-                this.queuedPlayers = solution;
-                this.startGame();
-        }, () => {}, () => { isReady = true; });
-      }
-    }, 1000);
-  }
-
-  public getOpponent(): void {
-    for (let i = 0; i < this.queuedPlayers.length; i++) {
-      if (this.queuedPlayers[i].username !== this.currentUser.username) {
-        this.opponent = this.queuedPlayers[i];
+          const audio = new Audio(this.errorSounds[Math.floor(Math.random() * this.errorSounds.length)]);
+          audio.volume = 0.15;
+          audio.play();
+          this.isConnection = false;
+          clearInterval(endInt);
+          return;
+        }
+      } else {
+        clearInterval(endInt);
         return;
       }
-    }
-  }
-
-  public startGame(): void {
-    this.getOpponent();
-    if (this.opponent !== null) {
-      if (document.getElementById('waiting-container') !== null) {
-        document.getElementById('waiting-container').remove();
-      }
-
-      this.opponentFound = true;
-
-      this.toCreate = {
-          currentDifficulty: null,
-          p1Status: 'q1',
-          p2Status: 'q1',
-          p1HP: 100,
-          p2HP: 100,
-          p1: this.currentUser,
-          p2: this.opponent,
-          p1Locked: null,
-          p2Locked: null,
-          p1Correct: 0,
-          p2Correct: 0,
-          answers: null,
-          correctAnswer: null,
-          question: null,
-          questionNumber: 1,
-          mode: 'ingame',
-          type: null
-        };
-
-      const played = this.currentUser.gamesPlayed + 1;
-
-      if (!this.isIngame) {
-        this.isIngame = true;
-        this.removeQueue(this.currentUser);
-        this.toastService.success('Game found!');
-        const audio = new Audio('../../../../assets/game-found.mp3');
-        audio.volume = 0.2;
-        audio.play();
-      }
-
-      this.userService.updateUser(
-        this.currentUser.username,
-        this.currentUser.email,
-        this.currentUser.money,
-        this.currentUser.allTimeCorrect,
-        played,
-        this.currentUser.gamesWon
-      ).pipe(
-        switchMap(() => {
-          return this.gameService.createNewGame(this.toCreate);
-        }),
-      ).subscribe(() => { this.router.navigate(['/game']); });
-    } else {
-      this.removeQueue(this.currentUser);
-      window.location.href = '/';
-      this.toastService.error('An error ocurred, you were kicked out of the queue!');
-    }
+    }, 5000);
   }
 }

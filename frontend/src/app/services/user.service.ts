@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 import {map} from 'rxjs/operators';
 import {Router} from '@angular/router';
 import {ToastrService} from 'ngx-toastr';
+import {environment} from "../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class UserService {
 
   currentUserObject: BehaviorSubject<User>;
   public currentUser: Observable<User>;
-  backend = 'http://localhost:8000';
+  backend = environment.backend;
   constructor(private http: HttpClient, private router: Router, private readonly toastService: ToastrService) {
     this.currentUserObject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
     this.currentUser = this.currentUserObject.asObservable();
@@ -59,6 +60,13 @@ export class UserService {
 
   public deleteUser(id: number): Observable<User> {
     return this.http.post<User>(this.backend + '/user/delete?id=' + id, {
+      validateUsername: this.currentUserValue.username,
+      validatePassword: this.currentUserValue.password
+    });
+  }
+
+  public getUserByUserName(name: string): Observable<User> {
+    return this.http.post<User>(this.backend + '/user/getUser?name=' + name, {
       validateUsername: this.currentUserValue.username,
       validatePassword: this.currentUserValue.password
     });

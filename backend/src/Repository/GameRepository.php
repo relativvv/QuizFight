@@ -56,63 +56,9 @@ class GameRepository extends ServiceEntityRepository
         return null;
     }
 
-    public function getGameById(int $id): Game {
+    public function getGameById(int $id): ?Game {
         return $this->findOneBy(["id" => $id]);
     }
-
-    public function updateGame(Game $game) {
-        $toEdit = $this->getGameById($game->getId());
-        if ($game) {
-            try {
-                $toEdit->setP1($game->getP1());
-                $toEdit->setP2($game->getP2());
-                $toEdit->setQuestion($game->getQuestion());
-                $toEdit->setAnswers($game->getAnswers());
-                $toEdit->setCorrectAnswer($game->getCorrectAnswer());
-
-                $this->getEntityManager()->flush();
-            } catch (OptimisticLockException | ORMException $e) {}
-            return $toEdit;
-        }
-        throw new GameException("Game doesn't exist!");
-    }
-
-    public function updateGameP1(Game $game)
-    {
-        $toEdit = $this->getGameById($game->getId());
-        if ($game) {
-            try {
-                $toEdit->setP1Locked($game->getP1Locked());
-                $toEdit->setP1Correct($game->getP1Correct());
-                $toEdit->setP1Status($game->getP1Status());
-                $toEdit->setP2HP($game->getP2HP());
-
-                $toEdit->setQuestionNumber($game->getQuestionNumber());
-                $this->getEntityManager()->flush();
-            } catch (OptimisticLockException | ORMException $e) {}
-            return $toEdit;
-        }
-        throw new GameException("Game doesn't exist!");
-    }
-
-    public function updateGameP2(Game $game)
-    {
-        $toEdit = $this->getGameById($game->getId());
-        if ($game) {
-            try {
-                $toEdit->setP2Locked($game->getP2Locked());
-                $toEdit->setP2Correct($game->getP2Correct());
-                $toEdit->setP2Status($game->getP2Status());
-                $toEdit->setP1HP($game->getP1HP());
-
-                $toEdit->setQuestionNumber($game->getQuestionNumber());
-                $this->getEntityManager()->flush();
-            } catch (OptimisticLockException | ORMException $e) {}
-            return $toEdit;
-        }
-        throw new GameException("Game doesn't exist!");
-    }
-
 
     public function deleteGame(int $id): void {
         $game = $this->getGameById($id);

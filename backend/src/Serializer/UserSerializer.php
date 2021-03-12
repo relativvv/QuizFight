@@ -18,14 +18,13 @@ class UserSerializer {
         $email = $toDeserialize["email"];
         $image = $toDeserialize["image"];
         $admin = $toDeserialize["isAdmin"];
-        $queue = $toDeserialize["queue"];
         $money = $toDeserialize["money"];
         $allTimeCorrect = $toDeserialize["allTimeCorrect"];
         $won = $toDeserialize["gamesWon"];
         $played = $toDeserialize["gamesPlayed"];
         $token = $toDeserialize["resetToken"];
 
-        return new User($username, $email, $password, $token, $allTimeCorrect, $played, $won, $money, $admin, $image, $queue);
+        return new User($username, $email, $password, $token, $allTimeCorrect, $played, $won, $money, $admin, $image);
     }
 
 
@@ -37,7 +36,6 @@ class UserSerializer {
         $finalResponse["email"] = $user->getEmail();
         $finalResponse["image"] = $user->getImage();
         $finalResponse["isAdmin"] = $user->getIsAdmin();
-        $finalResponse["queue"] = $user->isInQueue();
         $finalResponse["money"] = $user->getMoney();
         $finalResponse["allTimeCorrect"] = $user->getAllTimeCorrect();
         $finalResponse["gamesWon"] = $user->getGamesWon();

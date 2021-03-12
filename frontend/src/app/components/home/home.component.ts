@@ -1,11 +1,10 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {UserService} from '../../services/user.service';
 import {Title} from '@angular/platform-browser';
-import {QueueService} from '../../services/queue.service';
 import {User} from '../../entity/User';
 import {ToastrService} from 'ngx-toastr';
-import {GameService} from "../../services/game.service";
-import {MatPaginator} from "@angular/material/paginator";
+import {MatPaginator} from '@angular/material/paginator';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-home',
@@ -17,8 +16,8 @@ export class HomeComponent implements OnInit {
   constructor(
     public readonly userService: UserService,
     public readonly titleService: Title,
-    public readonly queueService: QueueService,
-    private readonly toastService: ToastrService
+    private readonly toastService: ToastrService,
+    private readonly router: Router
   ) { }
 
   public user: User;
@@ -74,7 +73,7 @@ export class HomeComponent implements OnInit {
   }
 
   public insertIntoQueue(): void {
-    this.queueService.addPlayerToQueue(this.user.username, this.user.password).subscribe();
+    this.router.navigate(['/queue']);
     this.toastService.success('You joined the queue!');
   }
 

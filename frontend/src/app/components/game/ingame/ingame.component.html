@@ -1,96 +1,99 @@
-<div *ngIf="userIsIngame">
-  <button class="go-back" (click)="backToStart()" mat-icon-button aria-label="Go Back">
+<div>
+  <button class="go-back" (click)="deleteGame(true)" mat-icon-button aria-label="Go Back">
     <mat-icon>keyboard_backspace</mat-icon>
   </button>
-  <div class="header" *ngIf="!loading && game && this.currentMode !== 'finished'">
+  <div class="header" *ngIf="!loading && game && currentMode !== 'finished'">
     <span class="username" *ngIf="currentUser">{{currentUser.username}}</span>
     <div class="player-info">
       <img [src]="game.p1.username === currentUser.username ? game.p1.image : game.p2.image" *ngIf="game" alt="opponent profile picture" [draggable]="false">
-      <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: left;" mode="determinate" color="primary" [value]="game.p1.username === currentUser.username ? game.p1HP : game.p2HP"></mat-progress-bar>
+      <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: left;" mode="determinate" color="primary" [value]="game.p1.username === currentUser.username ? p1HP : p2HP"></mat-progress-bar>
     </div>
-    <span *ngIf="game" class="status">{{ game.p1.username === currentUser.username ? game.p1Correct : game.p2Correct }} - {{ game.p1.username === opponent.username ? game.p1Correct : game.p2Correct}}</span>
+    <span *ngIf="game" class="status">{{ game.p1.username === currentUser.username ? p1Correct : p2Correct }} - {{ game.p1.username === opponent.username ? p1Correct : p2Correct}}</span>
     <div class="player-info">
       <img [src]="game.p1.username === opponent.username ? game.p1.image : game.p2.image" *ngIf="opponent" alt="opponent profile picture" [draggable]="false">
-      <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: right;" mode="determinate" color="primary" [value]="game.p1.username=== opponent.username ? game.p1HP : game.p2HP"></mat-progress-bar>
+      <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: right;" mode="determinate" color="primary" [value]="game.p1.username=== opponent.username ? p1HP : p2HP"></mat-progress-bar>
     </div>
     <span class="username" *ngIf="opponent">{{opponent.username}}</span>
   </div>
   <main *ngIf="userService.isLoggedIn() && game">
     <div id="question-stepper" class="question-stepper" *ngIf="!loading">
       <button class="stepper" mat-fab>1</button>
-      <button id="finished-flag" [class.stepper]="this.currentMode === 'finished'" mat-fab><mat-icon>flag</mat-icon></button>
+      <button id="finished-flag" [class.stepper]="currentMode === 'finished'" mat-fab><mat-icon>flag</mat-icon></button>
     </div>
-    <mat-progress-bar *ngIf="!loading && this.currentMode !== 'finished'" class="timer-bar" mode="determinate" color="warn" [value]="timer"></mat-progress-bar>
-    <mat-card class="question" *ngIf="!this.loading && game && questionString && this.currentMode !== 'finished'">{{ questionString | translateHtmlCodes }}<span class="money" *ngIf="money"> {{money}} <mat-icon>attach_money</mat-icon></span></mat-card>
-    <div *ngIf="!loading && this.game && this.currentMode !== 'finished'" class="question-answers">
+    <mat-progress-bar *ngIf="!loading && currentMode !== 'finished'" class="timer-bar" mode="determinate" color="warn" [value]="timer"></mat-progress-bar>
+    <mat-card class="question" *ngIf="!loading && game && questionString && currentMode !== 'finished'">
+      {{ questionString | translateHtmlCodes }}
+      <span class="money" *ngIf="money"> {{money}} <mat-icon>attach_money</mat-icon></span>
+    </mat-card>
+    <div *ngIf="!loading && game && currentMode !== 'finished'" class="question-answers">
       <button
         (click)="lockAnswer('one')"
-        [class.correct-answer]="!waitingForOpponent && this.currentMode === 'questionResult' && answerOne === correctAnswer"
+        [class.correct-answer]="!waitingForOpponent && currentMode === 'questionResult' && answerOne === correctAnswer"
         *ngIf="answerOne"
         id="answerOne"
         class="answer"
         mat-raised-button
         color="accent">{{ answerOne | translateHtmlCodes }}
-        <mat-chip-list *ngIf="this.currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
-          <mat-chip color="accent" *ngIf="game.p1Locked === answerOne">{{game.p1.username}}</mat-chip>
-          <mat-chip color="accent" *ngIf="game.p2Locked === answerOne">{{game.p2.username}}</mat-chip>
+        <mat-chip-list *ngIf="currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
+          <mat-chip color="accent" *ngIf="p1Locked === answerOne">{{game.p1.username}}</mat-chip>
+          <mat-chip color="accent" *ngIf="p2Locked === answerOne">{{game.p2.username}}</mat-chip>
         </mat-chip-list>
       </button>
       <button
         (click)="lockAnswer('two')"
-        [class.correct-answer]="!waitingForOpponent && this.currentMode === 'questionResult' && answerTwo === correctAnswer"
+        [class.correct-answer]="!waitingForOpponent && currentMode === 'questionResult' && answerTwo === correctAnswer"
         id="answerTwo"
         *ngIf="answerTwo"
         class="answer"
         mat-raised-button
         color="accent">{{ answerTwo | translateHtmlCodes }}
-        <mat-chip-list *ngIf="this.currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
-          <mat-chip color="accent" *ngIf="game.p1Locked === answerTwo">{{game.p1.username}}</mat-chip>
-          <mat-chip color="accent" *ngIf="game.p2Locked === answerTwo">{{game.p2.username}}</mat-chip>
+        <mat-chip-list *ngIf="currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
+          <mat-chip color="accent" *ngIf="p1Locked === answerTwo">{{game.p1.username}}</mat-chip>
+          <mat-chip color="accent" *ngIf="p2Locked === answerTwo">{{game.p2.username}}</mat-chip>
         </mat-chip-list>
       </button>
       <button
         (click)="lockAnswer('three')"
-        [class.correct-answer]="!waitingForOpponent && this.currentMode === 'questionResult' && answerThree === correctAnswer"
+        [class.correct-answer]="!waitingForOpponent && currentMode === 'questionResult' && answerThree === correctAnswer"
         id="answerThree"
         *ngIf="answerThree"
         class="answer"
         mat-raised-button
         color="accent">{{ answerThree | translateHtmlCodes }}
-        <mat-chip-list *ngIf="this.currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
-          <mat-chip color="accent" *ngIf="game.p1Locked === answerThree">{{game.p1.username}}</mat-chip>
-          <mat-chip color="accent" *ngIf="game.p2Locked === answerThree">{{game.p2.username}}</mat-chip>
+        <mat-chip-list *ngIf="currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
+          <mat-chip color="accent" *ngIf="p1Locked === answerThree">{{game.p1.username}}</mat-chip>
+          <mat-chip color="accent" *ngIf="p2Locked === answerThree">{{game.p2.username}}</mat-chip>
         </mat-chip-list>
       </button>
       <button
         (click)="lockAnswer('four')"
-        [class.correct-answer]="!waitingForOpponent && this.currentMode === 'questionResult' && answerFour === correctAnswer"
+        [class.correct-answer]="!waitingForOpponent && currentMode === 'questionResult' && answerFour === correctAnswer"
         id="answerFour"
         *ngIf="answerFour"
         class="answer"
         mat-raised-button
         color="accent">{{ answerFour | translateHtmlCodes }}
-        <mat-chip-list *ngIf="this.currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
-          <mat-chip color="accent" *ngIf="game.p1Locked === answerFour">{{game.p1.username}}</mat-chip>
-          <mat-chip color="accent" *ngIf="game.p2Locked === answerFour">{{game.p2.username}}</mat-chip>
+        <mat-chip-list *ngIf="currentMode === 'questionResult' && !waitingForOpponent" aria-label="chosen answer">
+          <mat-chip color="accent" *ngIf="p1Locked === answerFour">{{game.p1.username}}</mat-chip>
+          <mat-chip color="accent" *ngIf="p2Locked === answerFour">{{game.p2.username}}</mat-chip>
         </mat-chip-list>
       </button>
     </div>
 
-    <div class="finished" *ngIf="this.currentMode === 'finished' && !loading">
-      <div class="player-info">
+    <div class="finished" *ngIf="currentMode === 'finished' && !loading">
+      <div class="player-info" [class.won]="(game.p1.username === opponent.username && p1HP > p2HP) || (game.p2.username === opponent.username && p2HP > p1HP) ">
         <img [src]="game.p1.username === currentUser.username ? game.p1.image : game.p2.image" *ngIf="game" alt="opponent profile picture" [draggable]="false">
-        <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: left;" mode="determinate" color="primary" [value]="game.p1.username === currentUser.username ? game.p1HP : game.p2HP"></mat-progress-bar>
+        <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: left;" mode="determinate" color="primary" [value]="game.p1.username === currentUser.username ? p1HP : p2HP"></mat-progress-bar>
       </div>
-      <span *ngIf="game" class="status">{{ game.p1.username === currentUser.username ? game.p1Correct : game.p2Correct }} - {{ game.p1.username === opponent.username ? game.p1Correct : game.p2Correct}}</span>
-      <div class="player-info">
+      <span *ngIf="game" class="status">{{ game.p1.username === currentUser.username ? p1Correct : p2Correct }} - {{ game.p1.username === opponent.username ? p1Correct : p2Correct}}</span>
+      <div class="player-info" [class.won]="(game.p1.username === opponent.username && p1HP > p2HP) || (game.p2.username === opponent.username && p2HP > p1HP) ">
         <img [src]="game.p1.username === opponent.username ? game.p1.image : game.p2.image" *ngIf="opponent" alt="opponent profile picture" [draggable]="false">
-        <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: right;" mode="determinate" color="primary" [value]="game.p1.username === opponent.username ? game.p1HP : game.p2HP"></mat-progress-bar>
+        <mat-progress-bar *ngIf="!loading" class="hp-bar" style="float: right;" mode="determinate" color="primary" [value]="game.p1.username === opponent.username ? p1HP : p2HP"></mat-progress-bar>
       </div>
     </div>
   </main>
 
-  <div class="waiting-for-opponent" *ngIf="waitingForOpponent">
+  <div class="waiting-for-opponent" *ngIf="currentMode === 'waiting'">
     <h1>Waiting for opponent...</h1>
   </div>
 </div>

@@ -8,6 +8,11 @@ api_login_user:
   controller: App\Controller\UserController::loginUser
   methods: POST
 
+api_get_user:
+  path: /user/getUser
+  controller: App\Controller\UserController::getUserByName
+  methods: POST
+
 api_user_password_reset:
   path: /user/passwordreset
   controller: App\Controller\UserController::resetPassword
@@ -73,31 +78,6 @@ api_reset_mail:
   controller: App\Controller\UserController::sendResetPasswordMail
   methods: POST
 
-api_is_user_in_queue:
-  path: /user/isinqueue
-  controller: App\Controller\UserController::userIsInQueue
-  methods: GET
-
-api_get_players_in_queue:
-  path: /queue/totalamount
-  controller: App\Controller\UserController::getAmountOfPlayersInQueue
-  methods: GET
-
-api_add_player_to_queue:
-  path: /queue/addtoqueue
-  controller: App\Controller\UserController::addPlayerToQueue
-  methods: POST
-
-api_remove_player_from_queue:
-  path: /queue/removefromqueue
-  controller: App\Controller\UserController::removePlayerFromQueue
-  methods: POST
-
-api_get_queued_players:
-  path: /queue/getqueued
-  controller: App\Controller\UserController::getQueuedPlayers
-  methods: GET
-
 #  ------------------------------------------------------- API-GAME ------------------------------------------ #
 api_create_new_game:
   path: /game/createnew
@@ -114,27 +94,12 @@ api_user_is_ingame:
   controller: App\Controller\GameController::isIngame
   methods: GET
 
-api_get_full_game:
-  path: /game/getfullgame
-  controller: App\Controller\GameController::getFullGame
-  methods: POST
-
 api_delete_game:
   path: /game/deletegame
   controller: App\Controller\GameController::deleteGame
   methods: POST
 
-api_update_game:
-  path: /game/updategame
-  controller: App\Controller\GameController::updateGame
-  methods: PUT
-
-api_update_question:
-  path: /game/updatequestion
-  controller: App\Controller\GameController::updateQuestion
-  methods: PUT
-
-api_get_all_games:
-  path: /game/getrunning
-  controller: App\Controller\GameController::getAllRunning
-  methods: POST
+api_start_game_socket:
+  path: /game/startsocket
+  controller: App\Controller\GameController::runProcess
+  methods: GET
