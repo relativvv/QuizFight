@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  backend: 'http://localhost:8000',
+  queueSocket: 'ws://localhost:1414',
+  socketBackend: 'ws://localhost:'
 };
 
 /*

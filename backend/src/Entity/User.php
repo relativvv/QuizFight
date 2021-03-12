@@ -66,11 +66,6 @@ class User
     /**
      * @ORM\Column(type="boolean")
      */
-    private $queue;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
     private $isAdmin;
 
     /**
@@ -78,7 +73,7 @@ class User
      */
     private $game;
 
-    public function __construct(string $username, string $email, string $password, string $resetToken = null, int $allTimeCorrect = 0, int $gamesPlayed = 0, int $gamesWon = 0, int $money = 0, bool $isAdmin = false, string $image = null, bool $queue = null, int $id = null)
+    public function __construct(string $username, string $email, string $password, string $resetToken = null, int $allTimeCorrect = 0, int $gamesPlayed = 0, int $gamesWon = 0, int $money = 0, bool $isAdmin = false, string $image = null, int $id = null)
     {
         if($id !== null) {
             $this->id = $id;
@@ -89,7 +84,6 @@ class User
         $this->image = $image;
         $this->isAdmin = $isAdmin;
         $this->money = $money;
-        $this->queue = $queue;
         $this->gamesWon = $gamesWon;
         $this->gamesPlayed = $gamesPlayed;
         $this->allTimeCorrect = $allTimeCorrect;
@@ -231,18 +225,6 @@ class User
     public function addPlayedGames(int $played): self
     {
         $this->gamesPlayed = $this->getPlayedGames() + $played;
-
-        return $this;
-    }
-
-    public function isInQueue(): bool
-    {
-        return $this->queue;
-    }
-
-    public function setQueue(?bool $queue): self
-    {
-        $this->queue = $queue;
 
         return $this;
     }

@@ -1,12 +1,12 @@
 import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
 import {UserService} from '../../../services/user.service';
 import {GameService} from '../../../services/game.service';
-import {User} from '../../../entity/User';
-import {Game} from '../../../entity/Game';
 import {Title} from '@angular/platform-browser';
 import {ToastrService} from 'ngx-toastr';
-import {catchError, delay, map, repeat, retry, skip, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {EMPTY, iif, interval, NEVER, Observable, of, timer} from 'rxjs';
+import {User} from '../../../entity/User';
+import {Game} from '../../../entity/Game';
+import {environment} from '../../../../environments/environment';
+import {switchMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-ingame',
@@ -14,6 +14,7 @@ import {EMPTY, iif, interval, NEVER, Observable, of, timer} from 'rxjs';
   styleUrls: ['./ingame.component.less']
 })
 export class IngameComponent implements OnInit, OnDestroy {
+
 
   constructor(
     public readonly userService: UserService,
@@ -23,222 +24,383 @@ export class IngameComponent implements OnInit, OnDestroy {
   ) {
     this.titleService.setTitle('QuizFight - Ingame');
     this.currentUser = userService.currentUserValue;
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (this.currentMode === 'ingame' && this.game) {
-          this.leaveGame();
-        }
-      }
-    });
   }
 
   loading = false;
-  answers = [];
-  questionString = 'Waiting for question..';
-  correctAnswer: string;
+  currentUser: User;
+  currentUserType;
+  opponent: User;
+  opponentType: string;
+  game: Game;
+  socket: any;
+  timer = 132;
+  waitingForOpponent: boolean;
+  winner: string;
+  countDownInterval: any;
+  countUpInterval: any;
+  fiftyfifty = false;
+  reroll = false;
+  backupAnswers = [];
+
   answerOne = null;
   answerTwo = null;
   answerThree = null;
   answerFour = null;
+  correctAnswer: string;
+
+  currentMode: 'finished' | 'ingame' | 'waiting' | 'questionResult';
+  p1Locked: string;
+  p2Locked: string;
+  p1HP: number;
+  p2HP: number;
+  p1Correct: number;
+  p2Correct: number;
+  questionString: string;
   money: number;
-  timer = 132;
-  questionNumber: number;
-  currentUser: User;
-  opponent: User;
-  game: Game;
-  waitingForOpponent = false;
-  currentMode = 'ingame';
-  userIsIngame: boolean;
-  countUpInterval;
-  timerInterval;
+  questionNumber = 1;
+  errorSounds = ['../../../../assets/error-1.mp3', '../../../../assets/error-2.mp3'];
+  winSounds = ['../../../../assets/win-1.mp3', '../../../../assets/win-2.mp3'];
+  loseSound = ['../../../../assets/lose-1.mp3', '../../../../assets/lose-2.mp3'];
+  socketBackend = environment.socketBackend;
+
 
   ngOnInit(): void {
-    this.isInGame();
-    this.getGameObject();
+    this.getGame();
   }
 
   ngOnDestroy(): void {
-    this.leaveGame();
-    window.location.href = '/';
-    alert('Please stop googling!');
+    this.deleteGame(true);
   }
 
-  public runGame(): void {
+  @HostListener('window:unload', [ '$event' ])
+  unloadHandler(event): void {
+    this.deleteGame(true);
+  }
+
+  getGame(): void {
     this.gameService.getGameByPlayer().pipe(
       switchMap((game: Game) => {
-        this.game = game;
-        this.questionString = game.question;
-        this.getMoney();
-        this.setAnswers(game.answers);
-        return interval(82).pipe(
-          takeUntil(timer(10900))
+      this.game = game;
+      this.checkIfGameExists();
+      this.manageSocket();
+      if (game.p1.username === this.currentUser.username) {
+        this.currentUserType = 'p1';
+        this.opponent = game.p2;
+        this.opponentType = 'p2';
+
+        this.currentUser.gamesPlayed++;
+        return this.userService.updateUser(
+          this.currentUser.username,
+          this.currentUser.email,
+          this.currentUser.money,
+          this.currentUser.allTimeCorrect,
+          this.currentUser.gamesPlayed,
+          this.currentUser.gamesWon
         );
-      }),
-      switchMap((n) => {
-        if (this.timer > 0) {
-          this.timer--;
-        }
-        if (this.timer <= 0) {
-          this.timer--;
-          this.currentMode = 'questionResult';
-          const newInt = this.questionNumber + 1;
-          if (this.game.p1.username === this.currentUser.username) {
-            this.game.p1Status = 'q' + newInt;
-            return this.gameService.updateGameObject(this.game, 'p1');
-          } else {
-            this.game.p2Status = 'q' + newInt;
-            return this.gameService.updateGameObject(this.game, 'p2');
-          }
-        }
-        return NEVER;
-      }),
-    switchMap((a) => {
-        this.game = a;
-        this.waitingForOpponent = true;
-        return this.gameService.getFullGameByPlayer();
-      }),
-    switchMap((fullGame) => {
-        if (this.answerOne === fullGame.correctAnswer ||
-              this.answerTwo === fullGame.correctAnswer ||
-              this.answerThree === fullGame.correctAnswer ||
-              this.answerFour === fullGame.correctAnswer) {
 
-              this.game = fullGame;
-              this.correctAnswer = fullGame.correctAnswer;
 
-              if (this.game.p1Status === this.game.p2Status) {
-                this.waitingForOpponent = false;
-                console.log(fullGame);
-                if (this.game.p1.username === this.currentUser.username) {
-                  if (this.game.p1Locked) {
-                    if (this.game.p1Locked === fullGame.correctAnswer) {
-                      this.game.p1Correct++;
-                      this.game.p1.allTimeCorrect++;
-                      this.dealDamage('p2');
-                      this.game.p1.money += this.money;
-                      this.toastService.success('That was correct, you gained ' + this.money + '$!');
-                      return this.userService.addMoney(this.money);
-                    } else {
-                      this.toastService.error('Sorry, that was not correct!');
-                      return this.updateGameObject();
-                    }
-                  }
-                } else if (this.game.p2.username === this.currentUser.username) {
-                  if (this.game.p2Locked) {
-                    if (this.game.p2Locked === fullGame.correctAnswer) {
-                      this.game.p2Correct++;
-                      this.game.p2.allTimeCorrect++;
-                      this.dealDamage('p1');
-                      this.game.p2.money += this.money;
-                      this.toastService.success('That was correct, you gained ' + this.money + '$!');
-                      return this.userService.addMoney(this.money);
-                    } else {
-                      this.toastService.error('Sorry, that was not correct!');
-                      return this.updateGameObject();
-                    }
-                  }
-                }
-              }
-            } else {
-              this.waitingForOpponent = false;
-              return NEVER;
+      } else {
+        this.currentUserType = 'p2';
+        this.opponent = game.p1;
+        this.opponentType = 'p1';
+
+        this.currentUser.gamesPlayed++;
+        return this.userService.updateUser(
+          this.currentUser.username,
+          this.currentUser.email,
+          this.currentUser.money,
+          this.currentUser.allTimeCorrect,
+          this.currentUser.gamesPlayed,
+          this.currentUser.gamesWon
+        );
+      }
+    })).subscribe(() => {}, () => { this.deleteGame(true); });
+  }
+
+
+  private manageSocket(): void {
+    this.socket = new WebSocket(environment.socketBackend + this.game.port);
+    this.socket.onopen = (e) => {
+      this.socket.send(
+        JSON.stringify({
+          type: 'joined',
+          username: this.currentUser.username,
+          userType: this.currentUserType
+        })
+      );
+    };
+
+    this.socket.onError = (e) => {
+      this.toastService.error('Connection to the game failed!');
+      const audio = new Audio(this.errorSounds[Math.floor(Math.random() * this.errorSounds.length)]);
+      audio.volume = 0.15;
+      audio.play();
+      setTimeout(() => {
+        this.deleteGame(false);
+      }, 1500);
+
+    };
+
+    this.socket.onmessage = (e) => {
+      const json = JSON.parse(e.data);
+      switch (json.type) {
+        case 'firstQuestion':
+          this.questionString = json.questionString;
+          this.correctAnswer = json.correctAnswer;
+          this.money = json.money;
+          this.currentMode = json.currentMode;
+          this.p1HP = json.p1HP;
+          this.p2HP = json.p2HP;
+          this.p1Correct = json.p1Correct;
+          this.p2Correct = json.p2Correct;
+          this.setAnswers(json.answers);
+
+          this.countDownInterval = setInterval(() => {
+            this.timer--;
+
+            if (this.timer <= 0) {
+              this.socket.send(
+                JSON.stringify({
+                  type: 'readyQuestion',
+                  username: this.currentUser.username,
+                  userType: this.currentUserType
+                })
+              );
+
+              this.currentMode = 'waiting';
+              clearInterval(this.countDownInterval);
             }
-        return this.updateGameObject();
-      }),
-      switchMap((sd) => {
-        if (sd.type === 'p1' || sd.username === this.currentUser.username) {
-          return this.gameService.updateGameObject(this.game, 'p1');
-        } else if (sd.type === 'p2' || sd.username === this.currentUser.username) {
-          return this.gameService.updateGameObject(this.game, 'p2');
-        }
+          }, 82);
+          break;
 
-        return this.updateGameObject();
-      }),
-      switchMap((g2) => {
-        if (g2.type === 'p1') {
-          return this.userService.updateUser(
-            this.game.p1.username,
-            this.game.p1.email,
-            this.game.p1.money,
-            this.game.p1.allTimeCorrect,
-            this.game.p1.gamesPlayed,
-            this.game.p1.gamesWon
+        case 'questionFinish':
+          this.currentMode = 'questionResult';
+          this.correctAnswer = json.correctAnswer;
+          if (this.fiftyfifty) {
+            this.setAnswers(this.backupAnswers);
+          }
+
+          if (this.game.p1.username === this.currentUser.username) {
+            if (this.correctAnswer === this.p1Locked) {
+              this.p1Correct++;
+              const dmg = this.randomNumber(32, 45);
+              this.dealDamage(dmg);
+
+              const audio = new Audio('../../../../assets/correct.mp3');
+              audio.volume = 0.15;
+              audio.play();
+
+              this.toastService.success('Correct, you dealed ' + dmg + ' damage!');
+
+              this.currentUser.allTimeCorrect++;
+              this.currentUser.money += this.money;
+              this.userService.updateUser(
+                this.currentUser.username,
+                this.currentUser.email,
+                this.currentUser.money,
+                this.currentUser.allTimeCorrect,
+                this.currentUser.gamesPlayed,
+                this.currentUser.gamesWon
+              ).subscribe();
+
+            } else {
+              this.toastService.error('Sorry, that was not correct!');
+              const audio = new Audio('../../../../assets/wrong.mp3');
+              audio.volume = 0.15;
+              audio.play();
+            }
+
+          } else if (this.game.p2.username === this.currentUser.username) {
+            if (this.correctAnswer === this.p2Locked) {
+              this.p2Correct++;
+              const dmg = this.randomNumber(32, 45);
+              this.dealDamage(dmg);
+
+              this.toastService.success('Correct, you dealed ' + dmg + ' damage!');
+
+              const audio = new Audio('../../../../assets/correct.mp3');
+              audio.volume = 0.15;
+              audio.play();
+
+              this.currentUser.allTimeCorrect++;
+              this.currentUser.money += this.money;
+              this.userService.updateUser(
+                this.currentUser.username,
+                this.currentUser.email,
+                this.currentUser.money,
+                this.currentUser.allTimeCorrect,
+                this.currentUser.gamesPlayed,
+                this.currentUser.gamesWon
+              ).subscribe();
+
+            } else {
+              this.toastService.error('Sorry, that was not correct!');
+              const audio = new Audio('../../../../assets/wrong.mp3');
+              audio.volume = 0.15;
+              audio.play();
+            }
+          }
+
+          this.p1Locked = json.p1Locked;
+          this.p2Locked = json.p2Locked;
+          if (this.game.p1.username === this.currentUser.username) {
+            this.socket.send(
+              JSON.stringify({
+                type: 'readyQuestionFinish',
+                username: this.currentUser.username,
+                userType: this.currentUserType,
+                p1Correct: this.p1Correct,
+                p2HP: this.p2HP
+              })
+            );
+          } else if (this.game.p2.username === this.currentUser.username) {
+            this.socket.send(
+              JSON.stringify({
+                type: 'readyQuestionFinish',
+                username: this.currentUser.username,
+                userType: this.currentUserType,
+                p2Correct: this.p2Correct,
+                p1HP: this.p1HP
+              })
+            );
+          }
+          break;
+
+        case 'updatePlayerData':
+          this.p1Correct = json.p1Correct;
+          this.p2Correct = json.p2Correct;
+          this.p1HP = json.p1HP;
+          this.p2HP = json.p2HP;
+
+          if (this.p1HP <= 0 || this.p2HP <= 0) {
+            this.currentMode = 'finished';
+            this.p1Locked = null;
+            this.p2Locked = null;
+            this.questionString = null;
+            this.toastService.success('The game has finished!');
+            this.socket.send(
+              JSON.stringify({
+                type: 'endGame',
+                username: this.currentUser.username,
+                userType: this.currentUserType,
+              })
+            );
+
+            if (this.p1HP <= 0 && this.p2HP <= 0) {
+              this.winner = 'both';
+            } else if (this.p1HP <= 0) {
+              this.winner = 'p2';
+
+              this.toastService.success('You won, you gained 150 Coins!');
+              this.currentUser.gamesWon++;
+              this.currentUser.money += 150;
+              this.userService.updateUser(
+                this.currentUser.username,
+                this.currentUser.email,
+                this.currentUser.money,
+                this.currentUser.allTimeCorrect,
+                this.currentUser.gamesPlayed,
+                this.currentUser.gamesWon
+              ).subscribe();
+
+              if (this.game.p2.username === this.currentUser.username) {
+                const audio = new Audio(this.winSounds[Math.floor(Math.random() * this.winSounds.length)]);
+                audio.volume = 0.15;
+                audio.play();
+              } else if (this.game.p1.username === this.currentUser.username) {
+                const audio = new Audio(this.loseSound[Math.floor(Math.random() * this.winSounds.length)]);
+                audio.volume = 0.15;
+                audio.play();
+              }
+
+            } else if (this.p2HP <= 0) {
+              this.winner = 'p1';
+
+              this.toastService.success('You won, you gained 150 Coins!');
+              this.currentUser.gamesWon++;
+              this.currentUser.money += 150;
+              this.userService.updateUser(
+                this.currentUser.username,
+                this.currentUser.email,
+                this.currentUser.money,
+                this.currentUser.allTimeCorrect,
+                this.currentUser.gamesPlayed,
+                this.currentUser.gamesWon
+              ).subscribe();
+
+              if (this.game.p1.username === this.currentUser.username) {
+                const audio = new Audio(this.winSounds[Math.floor(Math.random() * this.winSounds.length)]);
+                audio.volume = 0.15;
+                audio.play();
+              } else if (this.game.p2.username === this.currentUser.username) {
+                const audio = new Audio(this.loseSound[Math.floor(Math.random() * this.winSounds.length)]);
+                audio.volume = 0.15;
+                audio.play();
+              }
+            }
+
+            this.socket.close();
+            return;
+          }
+
+          this.socket.send(
+            JSON.stringify({
+              type: 'emitStartCountUp',
+              username: this.currentUser.username,
+              userType: this.currentUserType,
+            })
           );
-        } else if (g2.type === 'p2') {
-          return this.userService.updateUser(
-            this.game.p2.username,
-            this.game.p2.email,
-            this.game.p2.money,
-            this.game.p2.allTimeCorrect,
-            this.game.p2.gamesPlayed,
-            this.game.p2.gamesWon
-          );
-        }
-        return EMPTY;
-      }),
-      switchMap((fds) => {
-        return interval(120).pipe(
-          takeUntil(timer(1410))
-        );
-      }),
-      switchMap((c) => {
-        if (this.timer < 132) {
-          this.waitingForOpponent = false;
-          this.timer++;
-        }
+          break;
 
-        if (this.timer === 10) {
-          return this.gameService.getGameByPlayer();
-        }
-        return NEVER;
-      }),
-      switchMap((game) => {
-        this.game.p1HP = game.p1HP;
-        this.game.p2HP = game.p2HP;
-        this.game.p1Correct = game.p1Correct;
-        this.game.p2Correct = game.p2Correct;
-        return interval(120).pipe(
-          takeUntil(timer(4910))
-        );
-      }),
-      switchMap(() => {
-        this.timer++;
-        if (this.timer === 50) {
-          return this.updateQuestion(false);
-        }
-        return NEVER;
-      }),
-      switchMap((withQ) => {
-        return interval(120).pipe(
-          takeUntil(timer(9900))
-        );
-      }),
-      switchMap((kjlo) => {
-        this.timer++;
-        if (this.timer === 95) {
-          document.getElementsByClassName('question')[0].classList.add('drop-out');
-          document.getElementsByClassName('question-answers')[0].classList.add('drop-out');
-          window.setTimeout(() => {
-            document.getElementsByClassName('question')[0].classList.remove('drop-out');
-            document.getElementsByClassName('question-answers')[0].classList.remove('drop-out');
-          }, 5000);
-        }
+        case 'startCountUp':
+          this.countUpInterval = setInterval(() => {
+            this.timer++;
 
-        if (this.timer >= 132) {
-          this.game.p1Locked = null;
-          this.game.p2Locked = null;
-          this.resetAnswers();
-          this.questionString = 'Waiting for question...';
-          return this.gameService.getGameByPlayer();
-        }
-        return NEVER;
-      }),
-    switchMap((game) => {
-        this.game = game;
-        if (game.p1HP > 0 && game.p2HP > 0) {
-          this.currentMode = 'ingame';
+            if (this.timer === 95) {
+              document.getElementsByClassName('question')[0].classList.add('drop-out');
+              document.getElementsByClassName('question-answers')[0].classList.add('drop-out');
+              window.setTimeout(() => {
+                document.getElementsByClassName('question')[0].classList.remove('drop-out');
+                document.getElementsByClassName('question-answers')[0].classList.remove('drop-out');
+              }, 5000);
+            }
+
+            if (this.timer >= 132) {
+              this.p1Locked = null;
+              this.p2Locked = null;
+              this.answerOne = null;
+              this.answerTwo = null;
+              this.answerThree = null;
+              this.answerFour = null;
+              this.correctAnswer = null;
+
+              this.currentMode = 'ingame';
+
+              this.socket.send(
+                JSON.stringify({
+                  type: 'readyCountUp',
+                  username: this.currentUser.username,
+                  userType: this.currentUserType
+                })
+              );
+              clearInterval(this.countUpInterval);
+            }
+          }, 120);
+          break;
+
+        case 'nextQuestion':
           this.questionNumber++;
+          this.timer = 132;
+          this.questionString = json.questionString;
+          this.money = json.money;
+          this.setAnswers(json.answers);
+
+          document.getElementsByClassName('question')[0].classList.add('fade-in');
+          document.getElementsByClassName('question-answers')[0].classList.add('fade-in');
+          window.setTimeout(() => {
+            document.getElementsByClassName('question')[0].classList.remove('fade-in');
+            document.getElementsByClassName('question-answers')[0].classList.remove('fade-in');
+          }, 3000);
 
           const newNumber = document.createElement('button');
           const matFab = document.createAttribute('mat-fab');
@@ -257,228 +419,31 @@ export class IngameComponent implements OnInit, OnDestroy {
             newNumber, document.getElementById('question-stepper').lastChild
           );
 
-          this.game.questionNumber = this.questionNumber;
-          this.timer = 132;
-          this.questionString = 'Waiting for question...';
-          this.setAnswers(game.answers);
-          this.runGame();
-          document.getElementsByClassName('question')[0].classList.add('fade-in');
-          document.getElementsByClassName('question-answers')[0].classList.add('fade-in');
-          window.setTimeout(() => {
-            document.getElementsByClassName('question')[0].classList.remove('fade-in');
-            document.getElementsByClassName('question-answers')[0].classList.remove('fade-in');
-          }, 3000);
-        } else {
-          this.currentMode = 'finished';
-          const winner = this.getPlayerWithMoreHP();
-          return this.userService.updateUser(
-            winner.username,
-            winner.email,
-            winner.money,
-            winner.allTimeCorrect,
-            winner.gamesPlayed,
-            winner.gamesWon + 1
-          );
-        }
-        return EMPTY;
-      }),
-    ).subscribe(() => {}, () => { this.unexpectedEnd(); return; });
+          this.countDownInterval = setInterval(() => {
+            this.timer--;
+
+            if (this.timer <= 0) {
+              this.socket.send(
+                JSON.stringify({
+                  type: 'readyQuestion',
+                  username: this.currentUser.username,
+                  userType: this.currentUserType
+                })
+              );
+              this.currentMode = 'waiting';
+              clearInterval(this.countDownInterval);
+            }
+          }, 82);
+          break;
+      }
+    };
   }
 
-  @HostListener('window:unload', [ '$event' ])
-  unloadHandler(event): void {
-    this.leaveGame();
-  }
-
-  public leaveGame(): void {
-    this.toastService.success('You left the game.');
-    if (this.game) {
-      this.deleteGame().subscribe();
-    }
-  }
-
-  public backToStart(): void {
-    this.leaveGame();
-    window.location.href = '/';
-  }
-
-  public showWinner(): boolean {
+  private dealDamage(dmg: number): void {
     if (this.game.p1.username === this.currentUser.username) {
-      if (this.game.p1HP >= this.game.p2HP) {
-        return true;
-      }
-    } else if (this.game.p1.username === this.opponent.username) {
-      if (this.game.p1HP >= this.game.p2HP) {
-        return true;
-      }
-    }
-  }
-
-  getPlayerWithMoreHP(): User | null {
-    if (this.game.p1HP > this.game.p2HP) {
-      return this.game.p1;
-    } else if (this.game.p2HP > this.game.p1HP) {
-      return this.game.p2;
-    }
-
-    return null;
-  }
-
-  private deleteGame(): Observable<any> {
-    return this.gameService.deleteGame(this.game.id);
-  }
-
-  private isInGame(): void {
-    this.gameService.isIngame(this.currentUser).subscribe((result) => {
-      this.userIsIngame = result.ingame;
-    }, () => {
-      window.location.href = '/';
-    });
-  }
-
-  private unexpectedEnd(): void {
-    this.toastService.error('The game has ended. Nobody will get a reward.');
-    this.currentMode = 'finished';
-    this.waitingForOpponent = false;
-    this.deleteGame().subscribe();
-  }
-
-  private getGameObject(): void {
-    this.gameService.getGameByPlayer().subscribe((result) => {
-      this.game = result;
-
-      if (this.game.p1.username === this.currentUser.username) {
-        this.opponent = this.game.p2;
-      } else {
-        this.opponent = this.game.p1;
-      }
-
-      this.questionString = this.game.question;
-      this.questionNumber = this.game.questionNumber;
-      this.setAnswers(this.game.answers);
-      this.getMoney();
-      this.runGame();
-    }, () => { this.unexpectedEnd(); window.location.href = '/'; return; });
-  }
-
-  private updateQuestion(update = true): Observable<any> {
-    if (update) {
-      this.resetAnswers();
-    }
-    return this.gameService.updateQuestion(this.game);
-  }
-
-
-  public lockAnswer(type: 'one' | 'two' | 'three' | 'four'): void {
-    if (this.currentMode === 'ingame' && this.game) {
-      switch (type) {
-        case 'one':
-          document.getElementById('answerOne').style.backgroundColor = 'orange';
-          document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
-          if (this.game.p1.username === this.currentUser.username) {
-            this.game.p1Locked = this.answerOne;
-          } else {
-            this.game.p2Locked = this.answerOne;
-          }
-          break;
-        case 'two':
-          document.getElementById('answerTwo').style.backgroundColor = 'orange';
-          document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
-          if (this.game.p1.username === this.currentUser.username) {
-            this.game.p1Locked = this.answerTwo;
-          } else {
-            this.game.p2Locked = this.answerTwo;
-          }
-          break;
-        case 'three':
-          document.getElementById('answerThree').style.backgroundColor = 'orange';
-          document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
-          if (this.game.p1.username === this.currentUser.username) {
-            this.game.p1Locked = this.answerThree;
-          } else {
-            this.game.p2Locked = this.answerThree;
-          }
-          break;
-        case 'four':
-          document.getElementById('answerFour').style.backgroundColor = 'orange';
-          document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
-          document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
-          if (this.game.p1.username === this.currentUser.username) {
-            this.game.p1Locked = this.answerFour;
-          } else {
-            this.game.p2Locked = this.answerFour;
-          }
-          break;
-      }
-      this.updateGameObject().subscribe();
-    } else {
-      this.toastService.error('You cannot lock an answer at the moment');
-    }
-  }
-
-
-  private dealDamage(who: string): void {
-    const crit = Math.floor(Math.random() * 10);
-    switch (who) {
-      case 'p1':
-        if (crit === 5) {
-          this.game.p1HP = this.game.p1HP - 45;
-          this.toastService.success('CRIT! - You dealed 17 damage!');
-        } else {
-          this.game.p1HP = this.game.p1HP - 32;
-          this.toastService.success('You dealed 10 damage!');
-        }
-        break;
-      case 'p2':
-        if (crit === 5) {
-          this.game.p2HP = this.game.p2HP - 45;
-          this.toastService.success('CRIT! - You dealed 17 damage!');
-        } else {
-          this.game.p2HP = this.game.p2HP - 32;
-          this.toastService.success('You dealed 10 damage!');
-        }
-        break;
-
-      default:
-        return;
-    }
-  }
-
-  private getMoney(): void {
-    switch (this.game.currentDifficulty) {
-      case 'easy':
-        this.money = 5;
-        break;
-      case 'medium':
-        this.money = 15;
-        break;
-      case 'hard':
-        this.money = 25;
-        break;
-    }
-  }
-
-  private resetAnswers(): void {
-    this.answerOne = null;
-    this.answerTwo = null;
-    this.answerThree = null;
-    this.answerFour = null;
-    this.answers = [];
-    this.game.p1Locked = null;
-    this.game.p2Locked = null;
-    this.correctAnswer = null;
-    if (document.getElementById('answerFour') !== null) {
-      document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
-      document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
-      document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
-      document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
+      this.p2HP -= dmg;
+    } else if (this.game.p2.username === this.currentUser.username) {
+      this.p1HP -= dmg;
     }
   }
 
@@ -504,6 +469,10 @@ export class IngameComponent implements OnInit, OnDestroy {
       this.answerFour !== null) {
       return true;
     }
+  }
+
+  private randomNumber(min, max): number {
+    return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
   private setMissingAnswer(str: string): void {
@@ -537,15 +506,146 @@ export class IngameComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateGameObject(global = false): Observable<any> {
-    if (!global) {
-      if (this.game.p1.username === this.currentUser.username) {
-        return this.gameService.updateGameObject(this.game, 'p1');
-      } else {
-        return this.gameService.updateGameObject(this.game, 'p2');
+
+  public lockAnswer(type: 'one' | 'two' | 'three' | 'four'): void {
+    if (this.currentMode === 'ingame' && this.game) {
+      switch (type) {
+        case 'one':
+          document.getElementById('answerOne').style.backgroundColor = 'orange';
+          document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
+          if (this.game.p1.username === this.currentUser.username) {
+            this.p1Locked = this.answerOne;
+          } else {
+            this.p2Locked = this.answerOne;
+          }
+
+          this.socket.send(
+            JSON.stringify({
+              type: 'lockAnswer',
+              answer: 'one',
+              answerString: this.answerOne,
+              username: this.currentUser.username,
+              userType: this.currentUserType
+            })
+          );
+          break;
+        case 'two':
+          document.getElementById('answerTwo').style.backgroundColor = 'orange';
+          document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
+          if (this.game.p1.username === this.currentUser.username) {
+            this.p1Locked = this.answerTwo;
+          } else {
+            this.p2Locked = this.answerTwo;
+          }
+
+          this.socket.send(
+            JSON.stringify({
+              type: 'lockAnswer',
+              answer: 'two',
+              answerString: this.answerTwo,
+              username: this.currentUser.username,
+              userType: this.currentUserType
+            })
+          );
+          break;
+        case 'three':
+          document.getElementById('answerThree').style.backgroundColor = 'orange';
+          document.getElementById('answerFour').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
+          if (this.game.p1.username === this.currentUser.username) {
+            this.p1Locked = this.answerThree;
+          } else {
+            this.p2Locked = this.answerThree;
+          }
+
+          this.socket.send(
+            JSON.stringify({
+              type: 'lockAnswer',
+              answer: 'three',
+              answerString: this.answerThree,
+              username: this.currentUser.username,
+              userType: this.currentUserType
+            })
+          );
+          break;
+        case 'four':
+          document.getElementById('answerFour').style.backgroundColor = 'orange';
+          document.getElementById('answerThree').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerTwo').style.backgroundColor = '#3f73e5';
+          document.getElementById('answerOne').style.backgroundColor = '#3f73e5';
+          if (this.game.p1.username === this.currentUser.username) {
+            this.p1Locked = this.answerFour;
+          } else {
+            this.p2Locked = this.answerFour;
+          }
+
+          this.socket.send(
+            JSON.stringify({
+              type: 'lockAnswer',
+              answer: 'four',
+              answerString: this.answerFour,
+              username: this.currentUser.username,
+              userType: this.currentUserType
+            })
+          );
+          break;
       }
     } else {
-      return this.gameService.updateGameObject(this.game);
+      this.toastService.error('You cannot lock an answer at the moment');
     }
+  }
+
+  private checkIfGameExists(): void {
+    const endInt = setInterval(() => {
+      if (this.currentMode !== 'finished') {
+        if (this.socket.readyState === WebSocket.CLOSED || this.socket.readyState === WebSocket.CLOSING) {
+          this.errorAction();
+          clearInterval(endInt);
+          return;
+        }
+
+        this.gameService.getGameByPlayer().subscribe(() => {}, () => {
+          this.errorAction();
+          clearInterval(endInt);
+          return;
+        });
+      }
+    }, 5000);
+  }
+
+  deleteGame(redirect: boolean): void {
+    this.toastService.success('You left the game!');
+    this.currentMode = 'finished';
+    if (this.socket && (this.socket.readyState !== WebSocket.CLOSED || this.socket.readyState !== WebSocket.CLOSING)) {
+      this.socket.close();
+    }
+
+    if (this.game) {
+      this.gameService.deleteGame(this.game.id).subscribe();
+    }
+
+    clearInterval(this.countDownInterval);
+    clearInterval(this.countUpInterval);
+
+    if (redirect) {
+      window.location.href = '/';
+    }
+  }
+
+  private errorAction(): void {
+    this.toastService.error('The game has ended unexpectedly, maybe your opponent has left the game, or the connection to the server was lost.');
+    this.currentMode = 'finished';
+    clearInterval(this.countDownInterval);
+    clearInterval(this.countUpInterval);
+
+    const audio = new Audio(this.errorSounds[Math.floor(Math.random() * this.errorSounds.length)]);
+    audio.volume = 0.15;
+    audio.play();
+    this.deleteGame(false);
   }
 }

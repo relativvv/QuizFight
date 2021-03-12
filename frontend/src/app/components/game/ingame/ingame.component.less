@@ -203,6 +203,7 @@ mat-chip-list {
 .waiting-for-opponent {
   display: grid;
   justify-content: center;
+  align-items: center;
   grid-template-areas: "a a a"
                        "b b b"
                        "c c c";
@@ -219,6 +220,7 @@ mat-chip-list {
     font-size: 4em;
     opacity: 100%;
     font-weight: bold;
+    line-height: 7em;
   }
 }
 
@@ -230,9 +232,14 @@ mat-chip-list {
 
 .won {
   box-shadow:
-    0 0 60px 30px #fff,
-    0 0 100px 60px #ffc800,
-    0 0 140px 90px #cf9100 !important;
+    inset 0 0 50px #fff,
+    inset 20px 0 60px #ffc800,
+      inset -20px 0 60px #cf9100,
+    inset 20px 0 300px #ffc800,
+      inset -20px 0 300px #cf9100,
+    0 0 50px #fff,
+    -10px 0 60px #ffc800,
+    10px 0 60px #cf9100;
 }
 
 @media(max-width: 920px) {

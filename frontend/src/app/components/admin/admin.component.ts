@@ -7,8 +7,8 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {UserEditModalComponent} from '../modals/user-edit-modal/user-edit-modal.component';
 import {ToastrService} from 'ngx-toastr';
 import {finalize} from 'rxjs/operators';
-import {Game} from "../../entity/Game";
-import {GameService} from "../../services/game.service";
+import {Game} from '../../entity/Game';
+import {GameService} from '../../services/game.service';
 
 @Component({
   selector: 'app-admin',
@@ -41,16 +41,9 @@ export class AdminComponent implements OnInit {
     this.adminStartIndex = 0;
     this.adminEndIndex = 20;
     this.getIsAdmin();
-    this.getAllGames();
   }
 
   ngOnInit(): void {}
-
-  getAllGames(): void {
-    this.gameService.getAllGames().subscribe((result) => {
-      this.currentGames = result;
-    });
-  }
 
   getUsers(): void {
     this.userService.getAllUser(this.currentUser).subscribe((result) => {
@@ -82,15 +75,6 @@ export class AdminComponent implements OnInit {
         this.users = null;
         this.getUsers();
       }, () => { this.toastService.error('An error ocurred!'); });
-    }
-  }
-
-  deleteGame(id: number): void {
-    if (confirm('Are you sure, you want to delete this game?')) {
-      this.gameService.deleteGame(id).subscribe();
-      this.toastService.success('Game successfully deleted!');
-      this.currentGames = null;
-      this.getAllGames();
     }
   }
 
