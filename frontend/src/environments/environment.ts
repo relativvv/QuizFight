@@ -3,10 +3,13 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false,
-  backend: 'http://localhost:8000',
-  queueSocket: 'ws://localhost:1414',
-  socketBackend: 'ws://localhost:'
+  production: true,
+  // backend: 'http://localhost:8000',
+  // queueSocket: 'ws://localhost:1414',
+  // socketBackend: 'ws://localhost:'
+  backend: 'https://api.relativv.de',
+  queueSocket: 'wss://ws.relativv.de',
+  socketBackend: 'wss://wsgame.relativv.de/game/'
 };
 
 /*

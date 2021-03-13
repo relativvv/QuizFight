@@ -1,13 +1,16 @@
 <?php
 namespace App\Sockets;
 
+use App\Entity\Game;
+use App\Entity\User;
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 
 class Queue implements MessageComponentInterface {
     protected $clients;
     private $usernames = [];
-    private $allUsernames = [];
+    private $waitingPlayers = [];
+    private $readyToCreate = [];
 
     public function __construct() {
         $this->clients = new \SplObjectStorage;
@@ -25,9 +28,16 @@ class Queue implements MessageComponentInterface {
         switch($type) {
             case 'joined':
                 $this->usernames[$from->resourceId] = $data->username;
-                if(count($this->usernames) >= 2) {
+                $this->waitingPlayers[] = $from->resourceId;
+                if(count($this->waitingPlayers) >= 2 && count($this->waitingPlayers) % 2 === 0) {
                     foreach($this->clients as $client) {
-                        $client->send(json_encode(array("type" => "gameFound")));
+                        if(in_array($client->resourceId, $this->waitingPlayers) && !in_array($client->resourceId, $this->readyToCreate)) {
+                            $client->send(json_encode(array("type" => "gameFound")));
+                            $this->readyToCreate[] = $client->resourceId;
+                            if (($key = array_search($client->resourceId, $this->waitingPlayers)) !== false) {
+                                unset($this->waitingPlayers[$key]);
+                            }
+                        }
                     }
                 }
                 break;
@@ -38,11 +48,17 @@ class Queue implements MessageComponentInterface {
                 }
 
                 $from->send(json_encode(array("type" => "initiateCreation", "p1" => $unames[0], "p2" => $unames[1])));
+
+                if (($key = array_search($from->resourceId, $this->readyToCreate)) !== false) {
+                    unset($this->readyToCreate[$key]);
+                }
                 break;
             case 'redirectUsers':
                 foreach($this->clients as $client) {
-                    $client->send(json_encode(array("type" => "redirect")));
-                    unset($this->usernames[$client->resourceId]);
+                    if(!in_array($client->resourceId, $this->waitingPlayers) && !in_array($client->resourceId, $this->readyToCreate)) {
+                        $client->send(json_encode(array("type" => "redirect")));
+                        unset($this->usernames[$client->resourceId]);
+                    }
                 }
                 break;
         }
@@ -56,7 +72,6 @@ class Queue implements MessageComponentInterface {
 
     public function onError(ConnectionInterface $conn, \Exception $e) {
         echo "An error has occurred: {$e->getMessage()}\n";
-        unset($this->usernames[$conn->resourceId]);
         $conn->close();
     }
 }
