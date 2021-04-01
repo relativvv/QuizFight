@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
-use App\Exceptions\GameException;
 use App\Exceptions\UserException;
-use App\Repository\UserRepository;
 use App\Serializer\UserSerializer;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
@@ -221,9 +222,11 @@ class UserController extends AbstractController
 
     /**
      * @param Request $request
+     * @param MailerInterface $mailer
      * @return JsonResponse
+     * @throws TransportExceptionInterface
      */
-    public function sendResetPasswordMail(Request $request): JsonResponse {
+    public function sendResetPasswordMail(Request $request, MailerInterface $mailer): JsonResponse {
         $this->denyUnlessInternal($request);
         $arr = json_decode($request->getContent(), true);
         $email = $arr['email'];
@@ -235,7 +238,15 @@ class UserController extends AbstractController
         $user = $this->userService->getUserByEMail($arr['email']);
         $this->userService->setToken($user, $token);
 
-        mail($email, "QuizFight - Password reset", "Hellooooo, so you rascal forgot your password? \nHere you have a code, you need it to reset your password!\nI wouldn't give this code to anyone if I were you. \n Your code: " . $token . " \n Greetings  ~QuizFight Team");
+        $email = (new Email())
+        ->from('info@relativv.de')
+            ->to($email)
+            ->subject('QuizFight - Password reset')
+            ->text("
+            ")
+            ->html("<br />Hellooooo, so you rascal forgot your password? <br />Here you have a code, you need it to reset your password!<br />I wouldn't give this code to anyone if I were you.<br /> Your code: " . $token . " <br /><br /> Greetings  ~QuizFight Team");
+        $mailer->send($email);
+
         return new JsonResponse($arr);
     }
 

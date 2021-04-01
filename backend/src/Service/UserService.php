@@ -55,7 +55,7 @@ class UserService {
         return $this->userRepository->changePassword($username, $password);
     }
 
-    public function setToken(User $user, string $token): void {
+    public function setToken(User $user, ?string $token): void {
         $this->userRepository->setToken($user, $token);
     }
 
